@@ -77,6 +77,10 @@ class _TreeItem extends StatelessWidget {
 
   final Tree tree;
 
+  // Future<Image> _load_image() async{
+  //   Image.network(tree.imageURL!);
+  // } = Future<Image>.delayed(const Duration(seconds: 2), () => Image.network(tree.imageURL!),);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -86,12 +90,15 @@ class _TreeItem extends StatelessWidget {
       },
       child: Card(
         child: ListTile(
-          leading: tree.imageURL != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(tree.imageURL!),
-                )
-              : const FaIcon(FontAwesomeIcons.tree),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              tree.imageURL!,
+              errorBuilder: (context, error, stackTrace) {
+                return const FaIcon(FontAwesomeIcons.tree);
+              },
+            ),
+          ),
           title: Text(tree.name),
           subtitle: Text(tree.scientificName),
           trailing: const Icon(Icons.arrow_forward),
