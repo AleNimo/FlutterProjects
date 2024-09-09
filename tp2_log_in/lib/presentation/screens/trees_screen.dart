@@ -95,7 +95,7 @@ class _TreeItem extends StatelessWidget {
             child: Image.network(
               tree.imageURL!,
               errorBuilder: (context, error, stackTrace) {
-                return const FaIcon(FontAwesomeIcons.tree);
+                return const FaIcon(FontAwesomeIcons.tree, size: 50);
               },
             ),
           ),

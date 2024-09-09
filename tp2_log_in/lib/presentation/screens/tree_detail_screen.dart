@@ -64,11 +64,11 @@ class _TreeDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (tree.imageURL != null)
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: ClipRRect(
@@ -76,44 +76,46 @@ class _TreeDetailView extends StatelessWidget {
               child: Image.network(
                 tree.imageURL!,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const FaIcon(FontAwesomeIcons.tree, size: 100);
+                },
               ),
             ),
-          )
-        else
-          const Center(child: FaIcon(FontAwesomeIcons.tree, size: 200)),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                tree.name,
-                style: textStyle
-                    .titleLarge, //Se usa el estilo de materialApp para mantener el paradigma
-                textAlign: TextAlign.left,
-              ),
-              Text(
-                tree.scientificName,
-                style: textStyle.bodyMedium,
-              ),
-              Text(
-                'Familia: ${tree.family}',
-                style: textStyle.bodyMedium,
-              ),
-              Text(
-                  'Cantidad de árboles en CABA: ${tree.quantityBsAs.toString()}',
-                  style: textStyle.bodyMedium),
-            ],
           ),
-        ),
-        FilledButton.icon(
-          onPressed: () {
-            openDialog(context, 'Seguro desea eliminar el árbol?');
-          },
-          icon: const Icon(Icons.delete),
-          label: const Text('Eliminar'),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tree.name,
+                  style: textStyle
+                      .titleLarge, //Se usa el estilo de materialApp para mantener el paradigma
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  tree.scientificName,
+                  style: textStyle.bodyMedium,
+                ),
+                Text(
+                  'Familia: ${tree.family}',
+                  style: textStyle.bodyMedium,
+                ),
+                Text(
+                    'Cantidad de árboles en CABA: ${tree.quantityBsAs.toString()}',
+                    style: textStyle.bodyMedium),
+              ],
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              openDialog(context, '¿Seguro que desea eliminar el árbol?');
+            },
+            icon: const Icon(Icons.delete),
+            label: const Text('Eliminar'),
+          ),
+        ],
+      ),
     );
   }
 }
