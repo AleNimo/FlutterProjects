@@ -94,6 +94,17 @@ class _TreeItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               tree.imageURL!,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+              },
               errorBuilder: (context, error, stackTrace) {
                 return const FaIcon(FontAwesomeIcons.tree, size: 50);
               },

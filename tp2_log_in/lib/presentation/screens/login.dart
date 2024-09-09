@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:tp2_log_in/domain/user.dart';
+import 'package:tp2_log_in/data/users_repository.dart';
 
 // import 'package:collection/collection.dart';
 
@@ -47,45 +49,6 @@ class _LoginWidgetsState extends State<LoginWidgets> {
   final TextEditingController _inputName = TextEditingController();
   //Lo defino en una variable para poder acceder al texto ingresado
   final TextEditingController _inputPassword = TextEditingController();
-
-  //Lista de usuarios
-  List<User> users = [
-    User(
-      id: '1',
-      name: 'Alejo',
-      email: 'alejo@email.com',
-      password: '1234',
-      age: 24,
-    ),
-    User(
-      id: '2',
-      name: 'Joaquín',
-      email: 'joaquin@email.com',
-      password: '4321',
-      age: 24,
-    ),
-    User(
-      id: '3',
-      name: 'Ricardo',
-      email: 'ricardo@email.com',
-      password: '1324',
-      age: 62,
-    ),
-    User(
-      id: '4',
-      name: 'Juan',
-      email: 'juan@email.com',
-      password: '2134',
-      age: 45,
-    ),
-    User(
-      id: '5',
-      name: 'Eluney',
-      email: 'pelunita@gmail.com',
-      password: '4488',
-      age: 62,
-    )
-  ];
 
   @override
   Widget build(BuildContext context) {

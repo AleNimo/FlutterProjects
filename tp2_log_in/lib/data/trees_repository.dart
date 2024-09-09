@@ -16,7 +16,7 @@ final treeList = [
       family: 'Fabaceae, subfamilia: Papilionoideae',
       quantityBsAs: 14000,
       imageURL:
-          'ttps://buenosaires.gob.ar/sites/default/files/media/image/2021/12/15/3b0c7398baf091560bae7fb12e9f75e58fd515d7.png'),
+          'https://buenosaires.gob.ar/sites/default/files/media/image/2021/12/15/3b0c7398baf091560bae7fb12e9f75e58fd515d7.png'),
   Tree(
       id: '3',
       name: 'Palo Borracho',
