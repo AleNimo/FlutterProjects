@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:tp2_log_in/presentation/screens/login.dart';
-import 'package:tp2_log_in/presentation/screens/policies_screen.dart';
-import 'package:tp2_log_in/presentation/screens/policy_detail_screen.dart';
+import 'package:tp2_log_in/presentation/screens/trees_screen.dart';
+import 'package:tp2_log_in/presentation/screens/tree_detail_screen.dart';
 
 final GoRouter appRouter = GoRouter(initialLocation: '/login', routes: [
   GoRoute(
@@ -9,13 +9,13 @@ final GoRouter appRouter = GoRouter(initialLocation: '/login', routes: [
     builder: (context, state) => const LoginScreen(),
   ),
   GoRoute(
-    path: '/policy/:userName',
+    path: '/trees/:userName',
     builder: (context, state) =>
-        PoliciesScreen(userName: state.pathParameters['userName']!),
+        TreesScreen(userName: state.pathParameters['userName']!),
   ),
   GoRoute(
-    path: '/policyDetail/:id',
+    path: '/treeDetail/:id',
     builder: (context, state) =>
-        PolicyDetailScreen(policyId: state.pathParameters['id']!),
+        TreeDetailScreen(treeId: state.pathParameters['id']!),
   ),
 ]);

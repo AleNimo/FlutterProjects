@@ -15,19 +15,32 @@ class LoginScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Login'),
           ),
-          body: LoginWidgets(),
+          body: const LoginWidgets(),
         ));
   }
 }
 
 class LoginWidgets extends StatefulWidget {
-  LoginWidgets({super.key});
+  const LoginWidgets({super.key});
 
   @override
   State<LoginWidgets> createState() => _LoginWidgetsState();
 }
 
 class _LoginWidgetsState extends State<LoginWidgets> {
+  void showSnackbar(BuildContext context, String text) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    final snackbar = SnackBar(
+      duration: const Duration(seconds: 1),
+      content: Text(text),
+      // action: SnackBarAction(
+      //   label: 'Ok',
+      //   onPressed: () {},
+      // ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+  }
+
   bool _isObscure = true;
 
   //El 'final' no permite que cambie la referencia a esta variable (constante en tiempo de ejecución)
@@ -64,6 +77,13 @@ class _LoginWidgetsState extends State<LoginWidgets> {
       email: 'juan@email.com',
       password: '2134',
       age: 45,
+    ),
+    User(
+      id: '5',
+      name: 'Eluney',
+      email: 'pelunita@gmail.com',
+      password: '4488',
+      age: 62,
     )
   ];
 
@@ -104,11 +124,9 @@ class _LoginWidgetsState extends State<LoginWidgets> {
         OutlinedButton(
             onPressed: () {
               if (_inputName.text == '') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ingresar usuario')));
+                showSnackbar(context, 'Ingresar usuario');
               } else if (_inputPassword.text == '') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ingresar contraseña')));
+                showSnackbar(context, 'Ingresar contraseña');
               } else {
                 //Sin usar firstWhereOrNull (Uso manejo de excepciones):
                 try {
@@ -116,14 +134,12 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                       users.firstWhere((user) => user.name == _inputName.text);
                   if (userMatched.password == _inputPassword.text) {
                     context.push(
-                        '/policy/${_inputName.text}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
+                        '/trees/${_inputName.text}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Contraseña incorrecta')));
+                    showSnackbar(context, 'Contraseña incorrecta');
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No existe tal usuario')));
+                  showSnackbar(context, 'No existe tal usuario');
                 }
 
                 //Usando paquete de collection
