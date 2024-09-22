@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "tp2_log_in",
+            "name": "primer_parcial",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "tp2_log_in (profile mode)",
+            "name": "primer_parcial (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "tp2_log_in (release mode)",
+            "name": "primer_parcial (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

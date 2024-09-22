@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:tp2_log_in/domain/tree.dart';
-import 'package:tp2_log_in/data/trees_repository.dart';
+import 'package:primer_parcial/domain/tree.dart';
+import 'package:primer_parcial/data/trees_repository.dart';
 
 class TreesScreen extends StatelessWidget {
   const TreesScreen({super.key, required this.userName});

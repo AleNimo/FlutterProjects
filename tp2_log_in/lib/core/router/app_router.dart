@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
-import 'package:tp2_log_in/presentation/screens/login.dart';
-import 'package:tp2_log_in/presentation/screens/trees_screen.dart';
-import 'package:tp2_log_in/presentation/screens/tree_detail_screen.dart';
+import 'package:primer_parcial/presentation/screens/login.dart';
+import 'package:primer_parcial/presentation/screens/trees_screen.dart';
+import 'package:primer_parcial/presentation/screens/tree_detail_screen.dart';
 
 final GoRouter appRouter = GoRouter(initialLocation: '/login', routes: [
   GoRoute(

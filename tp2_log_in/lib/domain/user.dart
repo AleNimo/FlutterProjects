@@ -4,17 +4,18 @@ class User {
   String email;
   String password = '0000'; //con _password podría ser atributo privado
 
-  int? age; //el ? significa que no hace falta que esté inicializado (puede ser null)
+  int?
+      age; //el ? significa que no hace falta que esté inicializado (puede ser null)
 
-  // Inicialización con constructor con pasaje de parametros
+  // Init con constructor con pasaje de parámetros
   // User(id, name, email, password, age) :
   //   this.id = id,
   //   this.name = name,
   //   this.email = email,
   //   this._password = password,
   //   this.age = age;
-  
-  //Forma que permite dart, que no te obliga a pasar los parametros en orden
+
+  //Forma que permite dart, que no te obliga a pasar los parámetros en orden
   User({
     required this.id,
     required this.name,
@@ -22,8 +23,4 @@ class User {
     required this.password,
     this.age,
   });
-
-  void printUser() {
-    print('User: $name, Email: $email');
-  }
 }

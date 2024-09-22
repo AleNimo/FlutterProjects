@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:tp2_log_in/domain/user.dart';
-import 'package:tp2_log_in/data/users_repository.dart';
+import 'package:primer_parcial/domain/user.dart';
+import 'package:primer_parcial/data/users_repository.dart';
 
 // import 'package:collection/collection.dart';
 

@@ -1,4 +1,4 @@
-import 'package:tp2_log_in/domain/tree.dart';
+import 'package:primer_parcial/domain/tree.dart';
 
 final treeList = [
   Tree(

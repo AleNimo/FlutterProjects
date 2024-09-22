@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="tp2_log_in"
+        android:label="primer_parcial"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

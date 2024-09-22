@@ -1,4 +1,4 @@
-import 'package:tp2_log_in/domain/user.dart';
+import 'package:primer_parcial/domain/user.dart';
 
 //Lista de usuarios
 List<User> users = [

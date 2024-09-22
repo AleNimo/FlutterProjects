@@ -1,4 +1,4 @@
-name: tp2_log_in
+name: primer_parcial
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
@@ -7,6 +7,7 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
+  floor: ^1.5.0
   flutter:
     sdk: flutter
   font_awesome_flutter: ^10.7.0
@@ -17,6 +18,8 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
+  floor_generator: ^1.4.2
+  build_runner: ^2.1.2
 
 flutter:
   uses-material-design: true

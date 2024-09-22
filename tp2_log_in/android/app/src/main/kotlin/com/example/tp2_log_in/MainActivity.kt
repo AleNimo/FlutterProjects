@@ -1,4 +1,4 @@
-package com.example.tp2_log_in
+package com.example.primer_parcial
 
 import io.flutter.embedding.android.FlutterActivity
 
