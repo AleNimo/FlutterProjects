@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:primer_parcial/domain/tree.dart';
-import 'package:primer_parcial/data/trees_repository.dart';
+import 'package:primer_parcial/domain/models/tree.dart';
+import 'package:primer_parcial/domain/repositories/repository.dart';
 
-void openDialog(BuildContext context, String text) {
+void confirmationDialog(BuildContext context, String text) {
   showDialog(
       barrierDismissible: false,
       context: context,
@@ -26,10 +26,26 @@ void openDialog(BuildContext context, String text) {
           ));
 }
 
-class TreeDetailScreen extends StatelessWidget {
-  const TreeDetailScreen({super.key, required this.treeId});
+class TreeDetailScreen extends StatefulWidget {
+  const TreeDetailScreen(
+      {super.key, required this.treeId, required this.repository});
 
-  final String treeId;
+  final int treeId;
+
+  final Repository repository;
+
+  @override
+  State<TreeDetailScreen> createState() => _TreeDetailScreenState();
+}
+
+class _TreeDetailScreenState extends State<TreeDetailScreen> {
+  late Future<Tree?> treeRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    treeRequest = widget.repository.getTreeById(widget.treeId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +53,33 @@ class TreeDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Tree Detail'),
       ),
-      body: _TreeDetailView(
-        tree: treeList.firstWhere((tree) => tree.id == treeId),
+      body: FutureBuilder(
+        future: treeRequest,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData) {
+            return _TreeDetailView(
+              tree: (snapshot.data != null)
+                  ? snapshot.data!
+                  : Tree(
+                      id: widget.treeId,
+                      name: 'Not Found',
+                      scientificName: 'Not Found',
+                      family: 'Not Found',
+                      quantityBsAs: 0,
+                    ),
+            );
+          } else {
+            return Text(snapshot.error.toString());
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          openDialog(context, "Editar árbol");
+          confirmationDialog(context, "Editar árbol");
         },
         child: const Icon(Icons.edit),
       ),
@@ -73,13 +110,14 @@ class _TreeDetailView extends StatelessWidget {
             padding: const EdgeInsets.all(10.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                tree.imageURL!,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const FaIcon(FontAwesomeIcons.tree, size: 100);
-                },
-              ),
+              child: (tree.imageURL != null)
+                  ? Image.network(
+                      tree.imageURL!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const FaIcon(FontAwesomeIcons.tree, size: 50),
+                    )
+                  : const FaIcon(FontAwesomeIcons.tree, size: 100),
             ),
           ),
           Padding(
@@ -109,7 +147,8 @@ class _TreeDetailView extends StatelessWidget {
           ),
           FilledButton.icon(
             onPressed: () {
-              openDialog(context, '¿Seguro que desea eliminar el árbol?');
+              confirmationDialog(
+                  context, '¿Seguro que desea eliminar el árbol?');
             },
             icon: const Icon(Icons.delete),
             label: const Text('Eliminar'),

@@ -7,6 +7,7 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
+  collection: 1.18.0
   floor: ^1.5.0
   flutter:
     sdk: flutter
@@ -15,11 +16,11 @@ dependencies:
   my_library: ^0.0.1
 
 dev_dependencies:
+  build_runner: ^2.1.2
+  floor_generator: ^1.4.2
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
-  floor_generator: ^1.4.2
-  build_runner: ^2.1.2
 
 flutter:
   uses-material-design: true

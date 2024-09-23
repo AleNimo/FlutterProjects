@@ -2,13 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:primer_parcial/domain/tree.dart';
-import 'package:primer_parcial/data/trees_repository.dart';
+import 'package:primer_parcial/domain/models/tree.dart';
+import 'package:primer_parcial/domain/models/user.dart';
 
-class TreesScreen extends StatelessWidget {
-  const TreesScreen({super.key, required this.userName});
+import 'package:primer_parcial/domain/repositories/repository.dart';
 
-  final String userName;
+// Tree createTreeDialog(BuildContext context) {
+//   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+//   String name;
+//   String scientificName
+
+//   //   Tree({
+//   //   required this.id,
+//   //   required this.name,
+//   //   required this.scientificName,
+//   //   required this.family,
+//   //   required this.quantityBsAs,
+//   //   this.imageURL,
+//   // });
+//   showDialog(
+//       barrierDismissible: false,
+//       context: context,
+//       builder: (context) => AlertDialog(
+//             title: const Text('Ingresar nuevo árbol'),
+//             content: Form(
+//               key: formKey,
+//               child: Column(
+//                 children: [
+//                   TextFormField(
+//                     decoration:
+//                         const InputDecoration(hintText: 'Nombre informal'),
+//                     validator: (String? value) {
+//                       if (value == null || value.isEmpty) {
+//                         return 'Nombre vacío';
+//                       }
+//                       return null;
+//                     },
+//                   ),
+//                   TextFormField(
+//                     decoration:
+//                         const InputDecoration(hintText: 'Nombre científico'),
+//                     validator: (String? value) {
+//                       if (value == null || value.isEmpty) {
+//                         return 'Nombre científico vacío';
+//                       }
+//                       return null;
+//                     },
+//                   )
+//                 ],
+//               ),
+//             ),
+//             actions: [
+//               TextButton(
+//                   onPressed: () {
+//                     context.pop();
+//                   },
+//                   child: const Text('CANCEL')),
+//               FilledButton(
+//                   onPressed: () {
+//                     context.pop();
+//                   },
+//                   child: const Text('OK')),
+//             ],
+//           ));
+// }
+
+class TreesScreen extends StatefulWidget {
+  const TreesScreen(
+      {super.key, required this.userId, required this.repository});
+
+  final int userId;
+
+  final Repository repository;
+
+  @override
+  State<TreesScreen> createState() => _TreesScreenState();
+}
+
+class _TreesScreenState extends State<TreesScreen> {
+  late Future<List<Tree>> treesRequest;
+  late Future<User?> userRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    treesRequest = widget.repository.getTrees();
+    userRequest = widget.repository.getUserById(widget.userId);
+  }
 
   void showSnackbar(BuildContext context, String text) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -27,11 +107,41 @@ class TreesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bienvenido/a, $userName'),
+        title: FutureBuilder(
+          future: userRequest,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData) {
+              if (snapshot.data!.gender == 'M') {
+                return Text('Bienvenido, ${snapshot.data!.name}');
+              } else if (snapshot.data!.gender == 'F') {
+                return Text('Bienvenida, ${snapshot.data!.name}');
+              } else {
+                return Text('Bienvenid@, ${snapshot.data!.name}');
+              }
+            } else {
+              return Text(snapshot.error.toString());
+            }
+          },
+        ),
       ),
-      body: _TreesView(trees: treeList),
+      body: FutureBuilder(
+          future: treesRequest,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData) {
+              return (snapshot.data!.isEmpty)
+                  ? const Center(child: Text('Base de datos vacía'))
+                  : _TreesView(treeList: snapshot.data!);
+            } else {
+              return Text(snapshot.error.toString());
+            }
+          }),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
+            // Tree tree = createTreeDialog(context);
             showSnackbar(context, 'Árbol agregado');
           },
           child: const Icon(Icons.add)),
@@ -40,9 +150,10 @@ class TreesScreen extends StatelessWidget {
 }
 
 class _TreesView extends StatelessWidget {
-  const _TreesView({required this.trees});
+  const _TreesView({super.key, required this.treeList});
 
-  final List<Tree> trees;
+  final List<Tree> treeList;
+
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme;
@@ -58,10 +169,10 @@ class _TreesView extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             //ListViewBuilder sirve para listas dinamicas, ya tiene función de scroll, etc
-            itemCount: trees.length,
+            itemCount: treeList.length,
             itemBuilder: (context, index) {
               //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item
-              return _TreeItem(tree: trees[index]);
+              return _TreeItem(tree: treeList[index]);
             },
           ),
         ),
@@ -84,7 +195,7 @@ class _TreeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      //Widget que permite agregar gestos a widgets que no lo tienen
+      //Widget que permite agregar gestos a widgets que no lo tienen (en este caso no es necesario)
       onTap: () {
         context.push('/treeDetail/${tree.id}');
       },

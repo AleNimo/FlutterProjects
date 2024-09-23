@@ -1,5 +1,10 @@
+import 'package:floor/floor.dart';
+
+@entity
 class Tree {
-  final String id;
+  //si lo pongo en minúscula primaryKey no toma atributos
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
   final String name;
   final String scientificName;
   final String family;
@@ -7,7 +12,7 @@ class Tree {
   final String? imageURL;
 
   Tree({
-    required this.id,
+    this.id,
     required this.name,
     required this.scientificName,
     required this.family,

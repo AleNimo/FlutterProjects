@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:primer_parcial/domain/user.dart';
-import 'package:primer_parcial/data/users_repository.dart';
+import 'package:primer_parcial/domain/models/user.dart';
+import 'package:primer_parcial/domain/repositories/repository.dart';
 
 // import 'package:collection/collection.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key, required this.repository});
+
+  final Repository repository;
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  late Future<List<User>> usersRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    usersRequest = widget.repository.getUsers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,19 +32,41 @@ class LoginScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Login'),
           ),
-          body: const LoginWidgets(),
+          body: FutureBuilder(
+            future: usersRequest,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasData) {
+                return LoginWidgets(users: snapshot.data!);
+              } else {
+                return Center(child: Text(snapshot.error.toString()));
+              }
+            },
+          ),
         ));
   }
 }
 
 class LoginWidgets extends StatefulWidget {
-  const LoginWidgets({super.key});
+  const LoginWidgets({super.key, required this.users});
+
+  final List<User> users;
 
   @override
   State<LoginWidgets> createState() => _LoginWidgetsState();
 }
 
 class _LoginWidgetsState extends State<LoginWidgets> {
+  bool _isObscure = true;
+
+  //El 'final' no permite que cambie la referencia a esta variable (constante en tiempo de ejecución)
+  final TextEditingController _inputName = TextEditingController();
+  //Lo defino en una variable para poder acceder al texto ingresado
+  final TextEditingController _inputPassword = TextEditingController();
+
   void showSnackbar(BuildContext context, String text) {
     ScaffoldMessenger.of(context).clearSnackBars();
     final snackbar = SnackBar(
@@ -42,13 +79,6 @@ class _LoginWidgetsState extends State<LoginWidgets> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
-
-  bool _isObscure = true;
-
-  //El 'final' no permite que cambie la referencia a esta variable (constante en tiempo de ejecución)
-  final TextEditingController _inputName = TextEditingController();
-  //Lo defino en una variable para poder acceder al texto ingresado
-  final TextEditingController _inputPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -93,11 +123,11 @@ class _LoginWidgetsState extends State<LoginWidgets> {
               } else {
                 //Sin usar firstWhereOrNull (Uso manejo de excepciones):
                 try {
-                  User userMatched =
-                      users.firstWhere((user) => user.name == _inputName.text);
+                  User userMatched = widget.users
+                      .firstWhere((user) => user.name == _inputName.text);
                   if (userMatched.password == _inputPassword.text) {
                     context.push(
-                        '/trees/${_inputName.text}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
+                        '/trees/${userMatched.id}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
                   } else {
                     showSnackbar(context, 'Contraseña incorrecta');
                   }
