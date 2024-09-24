@@ -64,7 +64,21 @@ class _TreesScreenState extends State<TreesScreen> {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(welcomeText),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      menuDialog(context, user.id!);
+                    },
+                    icon: const Icon(Icons.menu),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: Text(welcomeText),
+                  ),
+                ],
+              ),
             ),
             body: (trees.isEmpty)
                 ? const Center(child: Text('Sin árboles para mostrar'))
@@ -88,8 +102,7 @@ class _TreesScreenState extends State<TreesScreen> {
 }
 
 class _TreesView extends StatelessWidget {
-  const _TreesView(
-      {super.key, required this.treeList, required this.onRefresh});
+  const _TreesView({required this.treeList, required this.onRefresh});
 
   final List<Tree> treeList;
 
@@ -104,7 +117,7 @@ class _TreesView extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('Árboles de la Ciudad de Buenos Aires:',
+              child: Text('Árboles en la Ciudad de Buenos Aires:',
                   style: textStyle.titleLarge),
             )),
         Expanded(
