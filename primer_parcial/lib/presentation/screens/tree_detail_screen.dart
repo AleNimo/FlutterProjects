@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
+import 'package:primer_parcial/domain/models/tree_dialog.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
 
 void confirmationDialog(BuildContext context, String text) {
@@ -47,49 +48,55 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
     treeRequest = widget.repository.getTreeById(widget.treeId);
   }
 
+  void refreshList() {
+    setState(() {
+      treeRequest = widget.repository.getTreeById(widget.treeId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tree Detail'),
-      ),
-      body: FutureBuilder(
-        future: treeRequest,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData) {
-            return _TreeDetailView(
-              tree: (snapshot.data != null)
-                  ? snapshot.data!
-                  : Tree(
-                      id: widget.treeId,
-                      name: 'Not Found',
-                      scientificName: 'Not Found',
-                      family: 'Not Found',
-                      quantityBsAs: 0,
-                    ),
-            );
-          } else {
-            return Text(snapshot.error.toString());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          confirmationDialog(context, "Editar árbol");
-        },
-        child: const Icon(Icons.edit),
-      ),
+    return FutureBuilder(
+      future: treeRequest,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          return Scaffold(
+              appBar: AppBar(
+                title: const Text('Tree Detail'),
+              ),
+              body: _TreeDetailView(
+                tree: (snapshot.data != null)
+                    ? snapshot.data!
+                    : Tree(
+                        id: widget.treeId,
+                        name: 'Not Found',
+                        scientificName: 'Not Found',
+                        family: 'Not Found',
+                        quantityBsAs: 0,
+                      ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  treeDialog(
+                      context, "Editar árbol", snapshot.data!, refreshList);
+                },
+                child: const Icon(Icons.edit),
+              ));
+        } else {
+          return Text(snapshot.error.toString());
+        }
+      },
     );
   }
 }
 
-//Podría pasar solo el id o el objeto de la pelicula
-//Pasar el id hace que haya una doble busqueda en la lista, pero si la peli cambia no me queda el objeto desactualizado
-//Tambien se pasa el id si la información es sensible
+//Podría pasar solo el id o el objeto de la película
+//Pasar el id hace que haya una doble búsqueda en la lista, pero si el item cambia no me queda el objeto desactualizado
+//También se pasa el id si la información es sensible
 class _TreeDetailView extends StatelessWidget {
   const _TreeDetailView({
     required this.tree,

@@ -14,4 +14,10 @@ abstract class TreeDao {
 
   @insert
   Future<void> insertTree(Tree tree);
+
+  @update
+  Future<void> updateTree(Tree tree);
+
+  // @delete
+  // Future<void> deleteTree(Tree tree);
 }

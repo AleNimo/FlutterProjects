@@ -134,6 +134,18 @@ class _$TreeDao extends TreeDao {
                   'family': item.family,
                   'quantityBsAs': item.quantityBsAs,
                   'imageURL': item.imageURL
+                }),
+        _treeUpdateAdapter = UpdateAdapter(
+            database,
+            'Tree',
+            ['id'],
+            (Tree item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'scientificName': item.scientificName,
+                  'family': item.family,
+                  'quantityBsAs': item.quantityBsAs,
+                  'imageURL': item.imageURL
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -143,6 +155,8 @@ class _$TreeDao extends TreeDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Tree> _treeInsertionAdapter;
+
+  final UpdateAdapter<Tree> _treeUpdateAdapter;
 
   @override
   Future<List<Tree>> findAllTrees() async {
@@ -172,6 +186,11 @@ class _$TreeDao extends TreeDao {
   @override
   Future<void> insertTree(Tree tree) async {
     await _treeInsertionAdapter.insert(tree, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateTree(Tree tree) async {
+    await _treeUpdateAdapter.update(tree, OnConflictStrategy.abort);
   }
 }
 

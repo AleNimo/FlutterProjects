@@ -5,67 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 
+import 'package:primer_parcial/domain/models/tree_dialog.dart';
+
 import 'package:primer_parcial/domain/repositories/repository.dart';
-
-// Tree createTreeDialog(BuildContext context) {
-//   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-//   String name;
-//   String scientificName
-
-//   //   Tree({
-//   //   required this.id,
-//   //   required this.name,
-//   //   required this.scientificName,
-//   //   required this.family,
-//   //   required this.quantityBsAs,
-//   //   this.imageURL,
-//   // });
-//   showDialog(
-//       barrierDismissible: false,
-//       context: context,
-//       builder: (context) => AlertDialog(
-//             title: const Text('Ingresar nuevo árbol'),
-//             content: Form(
-//               key: formKey,
-//               child: Column(
-//                 children: [
-//                   TextFormField(
-//                     decoration:
-//                         const InputDecoration(hintText: 'Nombre informal'),
-//                     validator: (String? value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Nombre vacío';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   TextFormField(
-//                     decoration:
-//                         const InputDecoration(hintText: 'Nombre científico'),
-//                     validator: (String? value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Nombre científico vacío';
-//                       }
-//                       return null;
-//                     },
-//                   )
-//                 ],
-//               ),
-//             ),
-//             actions: [
-//               TextButton(
-//                   onPressed: () {
-//                     context.pop();
-//                   },
-//                   child: const Text('CANCEL')),
-//               FilledButton(
-//                   onPressed: () {
-//                     context.pop();
-//                   },
-//                   child: const Text('OK')),
-//             ],
-//           ));
-// }
 
 class TreesScreen extends StatefulWidget {
   const TreesScreen(
@@ -90,17 +32,10 @@ class _TreesScreenState extends State<TreesScreen> {
     userRequest = widget.repository.getUserById(widget.userId);
   }
 
-  void showSnackbar(BuildContext context, String text) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    final snackbar = SnackBar(
-      duration: const Duration(seconds: 1),
-      content: Text(text),
-      // action: SnackBarAction(
-      //   label: 'Ok',
-      //   onPressed: () {},
-      // ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+  void refreshList() {
+    setState(() {
+      treesRequest = widget.repository.getTrees();
+    });
   }
 
   @override
@@ -134,15 +69,19 @@ class _TreesScreenState extends State<TreesScreen> {
             } else if (snapshot.hasData) {
               return (snapshot.data!.isEmpty)
                   ? const Center(child: Text('Base de datos vacía'))
-                  : _TreesView(treeList: snapshot.data!);
+                  : _TreesView(
+                      treeList: snapshot.data!,
+                      onRefresh: () async => refreshList(),
+                    );
             } else {
               return Text(snapshot.error.toString());
             }
           }),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // Tree tree = createTreeDialog(context);
-            showSnackbar(context, 'Árbol agregado');
+            //Tree tree = createTreeDialog(context);
+            //showSnackbar(context, 'Árbol agregado');
+            treeDialog(context, 'Ingresar nuevo árbol', null, refreshList);
           },
           child: const Icon(Icons.add)),
     );
@@ -150,9 +89,12 @@ class _TreesScreenState extends State<TreesScreen> {
 }
 
 class _TreesView extends StatelessWidget {
-  const _TreesView({super.key, required this.treeList});
+  const _TreesView(
+      {super.key, required this.treeList, required this.onRefresh});
 
   final List<Tree> treeList;
+
+  final Function onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -167,13 +109,19 @@ class _TreesView extends StatelessWidget {
                   style: textStyle.titleLarge),
             )),
         Expanded(
-          child: ListView.builder(
-            //ListViewBuilder sirve para listas dinamicas, ya tiene función de scroll, etc
-            itemCount: treeList.length,
-            itemBuilder: (context, index) {
-              //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item
-              return _TreeItem(tree: treeList[index]);
-            },
+          child: RefreshIndicator(
+            onRefresh: () async => onRefresh(),
+            child: ListView.builder(
+              //ListViewBuilder sirve para listas dinamicas, ya tiene función de scroll, etc
+              itemCount: treeList.length,
+              itemBuilder: (context, index) {
+                //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item
+                return _TreeItem(
+                  tree: treeList[index],
+                  onRefresh: () async => onRefresh(),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -182,22 +130,22 @@ class _TreesView extends StatelessWidget {
 }
 
 class _TreeItem extends StatelessWidget {
-  const _TreeItem({
-    required this.tree,
-  });
+  const _TreeItem({required this.tree, required this.onRefresh});
 
   final Tree tree;
 
-  // Future<Image> _load_image() async{
-  //   Image.network(tree.imageURL!);
-  // } = Future<Image>.delayed(const Duration(seconds: 2), () => Image.network(tree.imageURL!),);
+  final Function onRefresh;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       //Widget que permite agregar gestos a widgets que no lo tienen (en este caso no es necesario)
-      onTap: () {
-        context.push('/treeDetail/${tree.id}');
+      onTap: () async {
+        await context.push('/treeDetail/${tree.id}');
+        if (globalFlagRefreshList == true) {
+          globalFlagRefreshList = false;
+          onRefresh();
+        }
       },
       child: Card(
         child: ListTile(
