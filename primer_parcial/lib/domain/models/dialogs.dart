@@ -6,9 +6,35 @@ import 'package:primer_parcial/main.dart';
 
 bool globalFlagRefreshList = false;
 
+void deleteDialog(BuildContext context, Tree tree) {
+  showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('¿Seguro que desea eliminar el árbol?'),
+            content: const Text('Esta acción no puede ser deshecha.'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: const Text('Cancelar')),
+              FilledButton(
+                  onPressed: () {
+                    database.treeDao.deleteTree(tree);
+                    globalFlagRefreshList = true;
+                    context
+                      ..pop()
+                      ..pop();
+                  },
+                  child: const Text('Eliminar')),
+            ],
+          ));
+}
+
 // tree es el arbol a editar, si tree == null es porque se está creando un árbol
 void treeDialog(
-    BuildContext context, String title, Tree? tree, Function refreshList) {
+    BuildContext context, String title, Tree? tree, Function refreshFunction) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String name = '';
   String scientificName = '';
@@ -146,7 +172,7 @@ void treeDialog(
                         globalFlagRefreshList = true;
                         showSnackbar(context, 'Árbol editado exitosamente');
                       }
-                      refreshList();
+                      refreshFunction();
                       context.pop();
                     }
                   },

@@ -18,6 +18,6 @@ abstract class TreeDao {
   @update
   Future<void> updateTree(Tree tree);
 
-  // @delete
-  // Future<void> deleteTree(Tree tree);
+  @delete
+  Future<void> deleteTree(Tree tree);
 }

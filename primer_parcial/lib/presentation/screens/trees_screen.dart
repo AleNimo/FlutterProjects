@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 
-import 'package:primer_parcial/domain/models/tree_dialog.dart';
+import 'package:primer_parcial/domain/models/dialogs.dart';
 
 import 'package:primer_parcial/domain/repositories/repository.dart';
 
@@ -68,7 +68,7 @@ class _TreesScreenState extends State<TreesScreen> {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
               return (snapshot.data!.isEmpty)
-                  ? const Center(child: Text('Base de datos vacía'))
+                  ? const Center(child: Text('Sin árboles para mostrar'))
                   : _TreesView(
                       treeList: snapshot.data!,
                       onRefresh: () async => refreshList(),

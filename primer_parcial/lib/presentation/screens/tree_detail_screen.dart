@@ -1,31 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
-import 'package:primer_parcial/domain/models/tree_dialog.dart';
+import 'package:primer_parcial/domain/models/dialogs.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
-
-void confirmationDialog(BuildContext context, String text) {
-  showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => AlertDialog(
-            title: Text(text),
-            content: const Text('Esta acción no puede ser deshecha.'),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: const Text('CANCEL')),
-              FilledButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: const Text('OK')),
-            ],
-          ));
-}
 
 class TreeDetailScreen extends StatefulWidget {
   const TreeDetailScreen(
@@ -48,7 +25,7 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
     treeRequest = widget.repository.getTreeById(widget.treeId);
   }
 
-  void refreshList() {
+  void refreshTree() {
     setState(() {
       treeRequest = widget.repository.getTreeById(widget.treeId);
     });
@@ -83,7 +60,7 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
                   treeDialog(
-                      context, "Editar árbol", snapshot.data!, refreshList);
+                      context, "Editar árbol", snapshot.data!, refreshTree);
                 },
                 child: const Icon(Icons.edit),
               ));
@@ -155,8 +132,7 @@ class _TreeDetailView extends StatelessWidget {
           ),
           FilledButton.icon(
             onPressed: () {
-              confirmationDialog(
-                  context, '¿Seguro que desea eliminar el árbol?');
+              deleteDialog(context, tree);
             },
             icon: const Icon(Icons.delete),
             label: const Text('Eliminar'),

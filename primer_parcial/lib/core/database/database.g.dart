@@ -146,6 +146,18 @@ class _$TreeDao extends TreeDao {
                   'family': item.family,
                   'quantityBsAs': item.quantityBsAs,
                   'imageURL': item.imageURL
+                }),
+        _treeDeletionAdapter = DeletionAdapter(
+            database,
+            'Tree',
+            ['id'],
+            (Tree item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'scientificName': item.scientificName,
+                  'family': item.family,
+                  'quantityBsAs': item.quantityBsAs,
+                  'imageURL': item.imageURL
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -157,6 +169,8 @@ class _$TreeDao extends TreeDao {
   final InsertionAdapter<Tree> _treeInsertionAdapter;
 
   final UpdateAdapter<Tree> _treeUpdateAdapter;
+
+  final DeletionAdapter<Tree> _treeDeletionAdapter;
 
   @override
   Future<List<Tree>> findAllTrees() async {
@@ -191,6 +205,11 @@ class _$TreeDao extends TreeDao {
   @override
   Future<void> updateTree(Tree tree) async {
     await _treeUpdateAdapter.update(tree, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteTree(Tree tree) async {
+    await _treeDeletionAdapter.delete(tree);
   }
 }
 
