@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 void showSnackbar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).clearSnackBars();
   final snackbar = SnackBar(
-    duration: const Duration(seconds: 2),
+    duration: const Duration(seconds: 3),
     content: Text(text),
     // action: SnackBarAction(
     //   label: 'Ok',

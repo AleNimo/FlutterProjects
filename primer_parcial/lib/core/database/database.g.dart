@@ -228,6 +228,30 @@ class _$UserDao extends UserDao {
                   'password': item.password,
                   'age': item.age,
                   'gender': item.gender
+                }),
+        _userUpdateAdapter = UpdateAdapter(
+            database,
+            'User',
+            ['id'],
+            (User item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'email': item.email,
+                  'password': item.password,
+                  'age': item.age,
+                  'gender': item.gender
+                }),
+        _userDeletionAdapter = DeletionAdapter(
+            database,
+            'User',
+            ['id'],
+            (User item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'email': item.email,
+                  'password': item.password,
+                  'age': item.age,
+                  'gender': item.gender
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -237,6 +261,10 @@ class _$UserDao extends UserDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<User> _userInsertionAdapter;
+
+  final UpdateAdapter<User> _userUpdateAdapter;
+
+  final DeletionAdapter<User> _userDeletionAdapter;
 
   @override
   Future<List<User>> findAllUsers() async {
@@ -266,5 +294,15 @@ class _$UserDao extends UserDao {
   @override
   Future<void> insertUser(User user) async {
     await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateUser(User user) async {
+    await _userUpdateAdapter.update(user, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteUser(User user) async {
+    await _userDeletionAdapter.delete(user);
   }
 }

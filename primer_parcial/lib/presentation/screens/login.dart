@@ -126,7 +126,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   User userMatched = widget.users
                       .firstWhere((user) => user.name == _inputName.text);
                   if (userMatched.password == _inputPassword.text) {
-                    context.push(
+                    context.go(
                         '/trees/${userMatched.id}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
                   } else {
                     showSnackbar(context, 'Contraseña incorrecta');

@@ -40,48 +40,49 @@ class _TreesScreenState extends State<TreesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: FutureBuilder(
-          future: userRequest,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasData) {
-              if (snapshot.data!.gender == 'M') {
-                return Text('Bienvenido, ${snapshot.data!.name}');
-              } else if (snapshot.data!.gender == 'F') {
-                return Text('Bienvenida, ${snapshot.data!.name}');
-              } else {
-                return Text('Bienvenid@, ${snapshot.data!.name}');
-              }
-            } else {
-              return Text(snapshot.error.toString());
-            }
-          },
-        ),
-      ),
-      body: FutureBuilder(
-          future: treesRequest,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasData) {
-              return (snapshot.data!.isEmpty)
-                  ? const Center(child: Text('Sin árboles para mostrar'))
-                  : _TreesView(
-                      treeList: snapshot.data!,
-                      onRefresh: () async => refreshList(),
-                    );
-            } else {
-              return Text(snapshot.error.toString());
-            }
-          }),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            treeDialog(context, 'Ingresar nuevo árbol', null, refreshList);
-          },
-          child: const Icon(Icons.add)),
+    return FutureBuilder(
+      future: Future.wait([userRequest, treesRequest]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            color: const Color.fromARGB(255, 252, 248, 255),
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasData) {
+          User user = snapshot.data![0]! as User;
+          List<Tree> trees = snapshot.data![1] as List<Tree>;
+
+          String welcomeText = '';
+
+          if (user.gender == 'M') {
+            welcomeText = 'Bienvenido, ${user.name}';
+          } else if (user.gender == 'F') {
+            welcomeText = 'Bienvenida, ${user.name}';
+          } else {
+            welcomeText = 'Bienvenid@, ${user.name}';
+          }
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(welcomeText),
+            ),
+            body: (trees.isEmpty)
+                ? const Center(child: Text('Sin árboles para mostrar'))
+                : _TreesView(
+                    treeList: trees,
+                    onRefresh: () async => refreshList(),
+                  ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  treeDialog(
+                      context, 'Ingresar nuevo árbol', null, refreshList);
+                },
+                child: const Icon(Icons.add)),
+          );
+        } else {
+          return Center(child: Text(snapshot.error.toString()));
+        }
+      },
     );
   }
 }

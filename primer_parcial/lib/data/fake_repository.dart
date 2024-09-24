@@ -85,12 +85,54 @@ class FakeRepository implements Repository {
     )
   ];
 
-  List<Tree> getTreesNoDelay() {
-    return _treesList;
-  }
-
   List<User> getUsersNoDelay() {
     return _usersList;
+  }
+
+  @override
+  Future<List<User>> getUsers() async {
+    await Future.delayed(const Duration(seconds: 2));
+    return _usersList;
+  }
+
+  @override
+  Future<User?> getUserById(int id) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return _usersList.firstWhereOrNull((user) => user.id == id);
+  }
+
+  @override
+  Future<void> insertUser(User user) async {
+    await Future.delayed(const Duration(seconds: 1));
+    if (user.id == null) {
+      _usersList.add(User(
+        id: _usersList.last.id! + 1,
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        age: user.age,
+        gender: user.gender,
+      ));
+    } else {
+      _usersList.add(user);
+    }
+  }
+
+  @override
+  Future<void> updateUser(User user) async {
+    await Future.delayed(const Duration(seconds: 1));
+    _usersList[
+        _usersList.indexWhere((userInList) => userInList.id == user.id)] = user;
+  }
+
+  @override
+  Future<void> deleteUser(User user) async {
+    await Future.delayed(const Duration(seconds: 1));
+    _usersList.remove(user);
+  }
+
+  List<Tree> getTreesNoDelay() {
+    return _treesList;
   }
 
   @override
@@ -106,14 +148,32 @@ class FakeRepository implements Repository {
   }
 
   @override
-  Future<List<User>> getUsers() async {
-    await Future.delayed(const Duration(seconds: 2));
-    return _usersList;
+  Future<void> insertTree(Tree tree) async {
+    await Future.delayed(const Duration(seconds: 1));
+    if (tree.id == null) {
+      _treesList.add(Tree(
+        id: _treesList.last.id! + 1,
+        name: tree.name,
+        scientificName: tree.scientificName,
+        family: tree.family,
+        quantityBsAs: tree.quantityBsAs,
+        imageURL: tree.imageURL,
+      ));
+    } else {
+      _treesList.add(tree);
+    }
   }
 
   @override
-  Future<User?> getUserById(int id) async {
+  Future<void> updateTree(Tree tree) async {
     await Future.delayed(const Duration(seconds: 1));
-    return _usersList.firstWhereOrNull((user) => user.id == id);
+    _treesList[
+        _treesList.indexWhere((treeInList) => treeInList.id == tree.id)] = tree;
+  }
+
+  @override
+  Future<void> deleteTree(Tree tree) async {
+    await Future.delayed(const Duration(seconds: 1));
+    _treesList.remove(tree);
   }
 }

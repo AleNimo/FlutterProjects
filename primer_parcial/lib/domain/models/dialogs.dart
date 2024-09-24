@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:primer_parcial/core/router/app_router.dart';
 import 'package:primer_parcial/domain/models/snackbar.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
-import 'package:primer_parcial/main.dart';
 
 bool globalFlagRefreshList = false;
 
@@ -20,13 +20,15 @@ void deleteDialog(BuildContext context, Tree tree) {
                   },
                   child: const Text('Cancelar')),
               FilledButton(
-                  onPressed: () {
-                    database.treeDao.deleteTree(tree);
-                    showSnackbar(context, 'Árbol eliminado exitosamente');
+                  onPressed: () async {
+                    await repository.deleteTree(tree);
                     globalFlagRefreshList = true;
-                    context
-                      ..pop()
-                      ..pop();
+                    if (context.mounted) {
+                      showSnackbar(context, 'Árbol eliminado exitosamente');
+                      context
+                        ..pop()
+                        ..pop();
+                    }
                   },
                   child: const Text('Eliminar')),
             ],
@@ -142,14 +144,14 @@ void treeDialog(
                   },
                   child: const Text('Cancelar')),
               FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final isValid = formKey.currentState!.validate();
 
                     if (isValid) {
                       formKey.currentState!.save();
 
                       if (tree == null) {
-                        database.treeDao.insertTree(
+                        await repository.insertTree(
                           Tree(
                             name: name,
                             scientificName: scientificName,
@@ -158,9 +160,11 @@ void treeDialog(
                             imageURL: imageURL,
                           ),
                         );
-                        showSnackbar(context, 'Árbol agregado exitosamente');
+                        if (context.mounted) {
+                          showSnackbar(context, 'Árbol agregado exitosamente');
+                        }
                       } else {
-                        database.treeDao.updateTree(
+                        await repository.updateTree(
                           Tree(
                             id: tree.id,
                             name: name,
@@ -171,10 +175,12 @@ void treeDialog(
                           ),
                         );
                         globalFlagRefreshList = true;
-                        showSnackbar(context, 'Árbol editado exitosamente');
+                        if (context.mounted) {
+                          showSnackbar(context, 'Árbol editado exitosamente');
+                        }
                       }
                       refreshFunction();
-                      context.pop();
+                      if (context.mounted) context.pop();
                     }
                   },
                   child: const Text('Aceptar')),
