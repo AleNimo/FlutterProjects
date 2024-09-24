@@ -60,8 +60,9 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
       future: treeRequest,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Container(
+            color: const Color.fromARGB(255, 252, 248, 255),
+            child: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
           return Scaffold(
