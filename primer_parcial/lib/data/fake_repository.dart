@@ -49,7 +49,7 @@ class FakeRepository implements Repository {
       email: 'alejo@email.com',
       password: '1234',
       age: 24,
-      gender: 'M',
+      gender: Gender.Masculino,
     ),
     User(
       id: 2,
@@ -57,7 +57,7 @@ class FakeRepository implements Repository {
       email: 'joaquin@email.com',
       password: '4321',
       age: 24,
-      gender: 'M',
+      gender: Gender.Masculino,
     ),
     User(
       id: 3,
@@ -65,7 +65,7 @@ class FakeRepository implements Repository {
       email: 'ana@email.com',
       password: '1111',
       age: 62,
-      gender: 'F',
+      gender: Gender.Femenino,
     ),
     User(
       id: 4,
@@ -73,7 +73,7 @@ class FakeRepository implements Repository {
       email: 'juan@email.com',
       password: '2134',
       age: 45,
-      gender: 'M',
+      gender: Gender.Masculino,
     ),
     User(
       id: 5,
@@ -81,7 +81,7 @@ class FakeRepository implements Repository {
       email: 'pelunita@gmail.com',
       password: '4488',
       age: 62,
-      gender: 'F',
+      gender: Gender.Femenino,
     )
   ];
 

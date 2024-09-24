@@ -54,9 +54,9 @@ class _TreesScreenState extends State<TreesScreen> {
 
           String welcomeText = '';
 
-          if (user.gender == 'M') {
+          if (user.gender == Gender.Masculino) {
             welcomeText = 'Bienvenido, ${user.name}';
-          } else if (user.gender == 'F') {
+          } else if (user.gender == Gender.Femenino) {
             welcomeText = 'Bienvenida, ${user.name}';
           } else {
             welcomeText = 'Bienvenid@, ${user.name}';

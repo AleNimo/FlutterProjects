@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:floor/floor.dart';
+import 'package:primer_parcial/core/database/type_converter.dart';
 import 'package:primer_parcial/data/fake_repository.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -41,7 +42,7 @@ abstract class AppDatabase extends FloorDatabase {
           'email': item.email,
           'password': item.password,
           'age': item.age,
-          'gender': item.gender,
+          'gender': item.gender.index,
         },
       ).insert(user, OnConflictStrategy.replace);
     }

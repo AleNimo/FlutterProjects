@@ -100,7 +100,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Tree` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `scientificName` TEXT NOT NULL, `family` TEXT NOT NULL, `quantityBsAs` INTEGER NOT NULL, `imageURL` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL, `age` INTEGER, `gender` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL, `age` INTEGER, `gender` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -227,7 +227,7 @@ class _$UserDao extends UserDao {
                   'email': item.email,
                   'password': item.password,
                   'age': item.age,
-                  'gender': item.gender
+                  'gender': _genderConverter.encode(item.gender)
                 }),
         _userUpdateAdapter = UpdateAdapter(
             database,
@@ -239,7 +239,7 @@ class _$UserDao extends UserDao {
                   'email': item.email,
                   'password': item.password,
                   'age': item.age,
-                  'gender': item.gender
+                  'gender': _genderConverter.encode(item.gender)
                 }),
         _userDeletionAdapter = DeletionAdapter(
             database,
@@ -251,7 +251,7 @@ class _$UserDao extends UserDao {
                   'email': item.email,
                   'password': item.password,
                   'age': item.age,
-                  'gender': item.gender
+                  'gender': _genderConverter.encode(item.gender)
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -275,7 +275,7 @@ class _$UserDao extends UserDao {
             email: row['email'] as String,
             password: row['password'] as String,
             age: row['age'] as int?,
-            gender: row['gender'] as String?));
+            gender: _genderConverter.decode(row['gender'] as int)));
   }
 
   @override
@@ -287,7 +287,7 @@ class _$UserDao extends UserDao {
             email: row['email'] as String,
             password: row['password'] as String,
             age: row['age'] as int?,
-            gender: row['gender'] as String?),
+            gender: _genderConverter.decode(row['gender'] as int)),
         arguments: [id]);
   }
 
@@ -306,3 +306,6 @@ class _$UserDao extends UserDao {
     await _userDeletionAdapter.delete(user);
   }
 }
+
+// ignore_for_file: unused_element
+final _genderConverter = GenderConverter();

@@ -228,100 +228,137 @@ void treeDialog(
 void userDialog(
     BuildContext context, String title, User? user, Function refreshFunction) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  String name = '';
-  String email = '';
-  String password = '';
-  int? age = 0;
-  String? gender = 'X';
+  String inputName = '';
+  String inputEmail = '';
+  String inputPassword = '';
+  int? inputAge = 0;
+  Gender selectedGender;
+
+  if (user != null) {
+    selectedGender = user.gender;
+  } else {
+    selectedGender = Gender.Otro;
+  }
 
   showDialog(
       barrierDismissible: true,
       context: context,
       builder: (context) => AlertDialog(
             title: Text(title),
-            content: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        initialValue: (user != null) ? user.name : '',
-                        decoration: const InputDecoration(
-                          labelText: 'Nombre',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Nombre vacío';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => name = value!,
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        initialValue: (user != null) ? user.email : '',
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email vacío';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => email = value!,
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        initialValue: (user != null) ? user.password : '',
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Contraseña',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Contraseña vacía';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => password = value!,
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        initialValue: (user != null) ? user.age.toString() : '',
-                        decoration: const InputDecoration(
-                          labelText: 'Edad',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (String? value) {
-                          if (value != null) {
-                            if (int.tryParse(value) == null) {
-                              return 'Debe ser un número';
+            content: StatefulBuilder(
+              builder: (context, setState) => SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          initialValue: (user != null) ? user.name : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Nombre vacío';
                             }
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          age = int.tryParse(value ?? '');
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        initialValue: (user != null) ? user.gender : '',
-                        decoration: const InputDecoration(
-                          labelText: 'Género',
-                          border: OutlineInputBorder(),
+                            return null;
+                          },
+                          onSaved: (value) => inputName = value!,
                         ),
-                        onSaved: (value) => gender = value,
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          initialValue: (user != null) ? user.email : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email vacío';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) => inputEmail = value!,
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          initialValue: (user != null) ? user.password : '',
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Contraseña',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Contraseña vacía';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) => inputPassword = value!,
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          initialValue:
+                              (user != null) ? user.age.toString() : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Edad',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (String? value) {
+                            if (value != null) {
+                              if (int.tryParse(value) == null) {
+                                return 'Debe ser un número';
+                              }
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            inputAge = int.tryParse(value ?? '');
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        ExpansionTile(
+                          title: const Text('Género'),
+                          subtitle: Text(selectedGender.name),
+                          children: [
+                            RadioListTile(
+                              value: Gender.Masculino,
+                              groupValue: selectedGender,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedGender = value as Gender;
+                                });
+                              },
+                              title: const Text('Masculino'),
+                            ),
+                            RadioListTile(
+                              value: Gender.Femenino,
+                              groupValue: selectedGender,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedGender = value as Gender;
+                                });
+                              },
+                              title: const Text('Femenino'),
+                            ),
+                            RadioListTile(
+                              value: Gender.Otro,
+                              groupValue: selectedGender,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedGender = value as Gender;
+                                });
+                              },
+                              title: const Text('Otro'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -342,11 +379,11 @@ void userDialog(
                       if (user == null) {
                         await repository.insertUser(
                           User(
-                            name: name,
-                            email: email,
-                            password: password,
-                            age: age,
-                            gender: gender,
+                            name: inputName,
+                            email: inputEmail,
+                            password: inputPassword,
+                            age: inputAge,
+                            gender: selectedGender,
                           ),
                         );
                         if (context.mounted) {
@@ -357,11 +394,11 @@ void userDialog(
                         await repository.updateUser(
                           User(
                             id: user.id,
-                            name: name,
-                            email: email,
-                            password: password,
-                            age: age,
-                            gender: gender,
+                            name: inputName,
+                            email: inputEmail,
+                            password: inputPassword,
+                            age: inputAge,
+                            gender: selectedGender,
                           ),
                         );
                         globalFlagRefreshList = true;
