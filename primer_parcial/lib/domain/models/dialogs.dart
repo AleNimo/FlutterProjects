@@ -22,6 +22,7 @@ void deleteDialog(BuildContext context, Tree tree) {
               FilledButton(
                   onPressed: () {
                     database.treeDao.deleteTree(tree);
+                    showSnackbar(context, 'Árbol eliminado exitosamente');
                     globalFlagRefreshList = true;
                     context
                       ..pop()

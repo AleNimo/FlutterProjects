@@ -79,8 +79,6 @@ class _TreesScreenState extends State<TreesScreen> {
           }),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            //Tree tree = createTreeDialog(context);
-            //showSnackbar(context, 'Árbol agregado');
             treeDialog(context, 'Ingresar nuevo árbol', null, refreshList);
           },
           child: const Icon(Icons.add)),
