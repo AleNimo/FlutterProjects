@@ -151,14 +151,11 @@ class FakeRepository implements Repository {
   Future<void> insertTree(Tree tree) async {
     await Future.delayed(const Duration(seconds: 1));
     if (tree.id == null) {
-      _treesList.add(Tree(
-        id: _treesList.last.id! + 1,
-        name: tree.name,
-        scientificName: tree.scientificName,
-        family: tree.family,
-        quantityBsAs: tree.quantityBsAs,
-        imageURL: tree.imageURL,
-      ));
+      if (_treesList.isEmpty) {
+        _treesList.add(tree.copyWith(id: 1));
+      } else {
+        _treesList.add(tree.copyWith(id: _treesList.last.id! + 1));
+      }
     } else {
       _treesList.add(tree);
     }

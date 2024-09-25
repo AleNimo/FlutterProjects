@@ -7,7 +7,7 @@ import 'package:primer_parcial/domain/models/user.dart';
 
 bool globalFlagRefreshList = false;
 
-void menuDialog(BuildContext context, int userId) {
+void menuDialog(BuildContext context, int userId, Function refreshUser) {
   showDialog(
       barrierDismissible: true,
       context: context,
@@ -18,9 +18,15 @@ void menuDialog(BuildContext context, int userId) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextButton(
-                  onPressed: () {
-                    context.pop();
-                    context.push('/userProfile/$userId');
+                  onPressed: () async {
+                    await context.push('/userProfile/$userId');
+
+                    if (globalFlagRefreshList) {
+                      globalFlagRefreshList = false;
+                      refreshUser();
+                    }
+
+                    if (context.mounted) context.pop();
                   },
                   child: const Text('Perfil de Usuario'),
                 ),
@@ -406,8 +412,8 @@ void userDialog(
                           showSnackbar(context, 'Usuario editado exitosamente');
                         }
                       }
+                      await refreshFunction();
                       if (context.mounted) context.pop();
-                      refreshFunction();
                     }
                   },
                   child: const Text('Aceptar')),

@@ -38,6 +38,12 @@ class _TreesScreenState extends State<TreesScreen> {
     });
   }
 
+  void refreshUser() {
+    setState(() {
+      userRequest = widget.repository.getUserById(widget.userId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -69,7 +75,7 @@ class _TreesScreenState extends State<TreesScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      menuDialog(context, user.id!);
+                      menuDialog(context, user.id!, refreshUser);
                     },
                     icon: const Icon(Icons.menu),
                   ),
@@ -124,7 +130,7 @@ class _TreesView extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: () async => onRefresh(),
             child: ListView.builder(
-              //ListViewBuilder sirve para listas dinamicas, ya tiene función de scroll, etc
+              //ListViewBuilder sirve para listas dinámicas, ya tiene función de scroll, etc
               itemCount: treeList.length,
               itemBuilder: (context, index) {
                 //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item

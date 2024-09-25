@@ -19,4 +19,22 @@ class Tree {
     required this.quantityBsAs,
     this.imageURL,
   });
+
+  Tree copyWith({
+    int? id,
+    String? name,
+    String? scientificName,
+    String? family,
+    int? quantityBsAs,
+    String? imageURL,
+  }) {
+    return Tree(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      scientificName: scientificName ?? this.scientificName,
+      family: family ?? this.family,
+      quantityBsAs: quantityBsAs ?? this.quantityBsAs,
+      imageURL: imageURL ?? this.imageURL,
+    );
+  }
 }
