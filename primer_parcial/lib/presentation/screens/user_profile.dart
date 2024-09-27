@@ -62,7 +62,8 @@ class _UserProfileState extends State<UserProfile> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                userDialog(context, 'Editar Usuario', user, refreshUser);
+                userDialog(context, 'Editar Usuario', widget.repository, user,
+                    refreshUser);
               },
               child: const Icon(Icons.edit),
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:primer_parcial/core/menu/menu_items.dart';
 
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
@@ -14,7 +16,6 @@ class TreesScreen extends StatefulWidget {
       {super.key, required this.userId, required this.repository});
 
   final int userId;
-
   final Repository repository;
 
   @override
@@ -24,6 +25,8 @@ class TreesScreen extends StatefulWidget {
 class _TreesScreenState extends State<TreesScreen> {
   late Future<List<Tree>> treesRequest;
   late Future<User?> userRequest;
+
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -69,22 +72,9 @@ class _TreesScreenState extends State<TreesScreen> {
           }
 
           return Scaffold(
+            key: scaffoldKey,
             appBar: AppBar(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      menuDialog(context, user.id!, refreshUser);
-                    },
-                    icon: const Icon(Icons.menu),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    child: Text(welcomeText),
-                  ),
-                ],
-              ),
+              title: Text(welcomeText),
             ),
             body: (trees.isEmpty)
                 ? const Center(child: Text('Sin árboles para mostrar'))
@@ -94,15 +84,75 @@ class _TreesScreenState extends State<TreesScreen> {
                   ),
             floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  treeDialog(
-                      context, 'Ingresar nuevo árbol', null, refreshList);
+                  treeDialog(context, 'Ingresar nuevo árbol', widget.repository,
+                      null, refreshList);
                 },
                 child: const Icon(Icons.add)),
+            drawer: MenuDrawer(
+              scaffoldKey: scaffoldKey,
+              userId: user.id!,
+              refreshUser: refreshUser,
+            ),
           );
         } else {
           return Center(child: Text(snapshot.error.toString()));
         }
       },
+    );
+  }
+}
+
+class MenuDrawer extends StatefulWidget {
+  MenuDrawer({
+    super.key,
+    required this.scaffoldKey,
+    required this.userId,
+    required this.refreshUser,
+  });
+
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final int userId;
+  final Function refreshUser;
+
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+
+  @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  @override
+  Widget build(BuildContext context) {
+    return NavigationDrawer(
+      onDestinationSelected: (value) async {
+        switch (value) {
+          case 0:
+            await context.push('${menuItems[value].link}/${widget.userId}');
+            if (globalFlagRefreshList) {
+              globalFlagRefreshList = false;
+              widget.refreshUser();
+            }
+            break;
+          case 1:
+            context.push(menuItems[value].link);
+            break;
+          case 2:
+            await widget.asyncPrefs.remove('activeUserId');
+            if (context.mounted) context.go(menuItems[value].link);
+          default:
+        }
+        widget.scaffoldKey.currentState?.closeDrawer();
+      },
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 10, 28, 5),
+          child: Text('Menu', style: Theme.of(context).textTheme.titleLarge),
+        ),
+        ...menuItems.map((item) => NavigationDrawerDestination(
+              icon: Icon(item.icon),
+              label: Text(item.title),
+            ))
+      ],
     );
   }
 }

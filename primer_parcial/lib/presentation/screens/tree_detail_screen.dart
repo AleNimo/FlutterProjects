@@ -47,6 +47,7 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
                 title: const Text('Tree Detail'),
               ),
               body: _TreeDetailView(
+                repository: widget.repository,
                 tree: (snapshot.data != null)
                     ? snapshot.data!
                     : Tree(
@@ -59,8 +60,8 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  treeDialog(
-                      context, "Editar árbol", snapshot.data!, refreshTree);
+                  treeDialog(context, "Editar árbol", widget.repository,
+                      snapshot.data!, refreshTree);
                 },
                 child: const Icon(Icons.edit),
               ));
@@ -76,10 +77,9 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
 //Pasar el id hace que haya una doble búsqueda en la lista, pero si el item cambia no me queda el objeto desactualizado
 //También se pasa el id si la información es sensible
 class _TreeDetailView extends StatelessWidget {
-  const _TreeDetailView({
-    required this.tree,
-  });
+  const _TreeDetailView({required this.repository, required this.tree});
 
+  final Repository repository;
   final Tree tree;
 
   @override
@@ -132,7 +132,7 @@ class _TreeDetailView extends StatelessWidget {
           ),
           FilledButton.icon(
             onPressed: () {
-              deleteDialog(context, tree);
+              deleteDialog(context, repository, tree);
             },
             icon: const Icon(Icons.delete),
             label: const Text('Eliminar'),

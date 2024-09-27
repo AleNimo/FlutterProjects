@@ -1,54 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:primer_parcial/core/router/app_router.dart';
 import 'package:primer_parcial/domain/models/snackbar.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
+import 'package:primer_parcial/domain/repositories/repository.dart';
 
 bool globalFlagRefreshList = false;
 
-void menuDialog(BuildContext context, int userId, Function refreshUser) {
-  showDialog(
-      barrierDismissible: true,
-      context: context,
-      builder: (context) => AlertDialog(
-            title: const Text('Menu'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextButton(
-                  onPressed: () async {
-                    await context.push('/userProfile/$userId');
-
-                    if (globalFlagRefreshList) {
-                      globalFlagRefreshList = false;
-                      refreshUser();
-                    }
-
-                    if (context.mounted) context.pop();
-                  },
-                  child: const Text('Perfil de Usuario'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    context.pop();
-                    context.push('/configuration');
-                  },
-                  child: const Text('Configuración'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (context.mounted) context.go('/login');
-                  },
-                  child: const Text('Cerrar Sesión'),
-                ),
-              ],
-            ),
-          ));
-}
-
-void deleteDialog(BuildContext context, Tree tree) {
+void deleteDialog(BuildContext context, Repository repository, Tree tree) {
   showDialog(
       barrierDismissible: false,
       context: context,
@@ -78,8 +37,8 @@ void deleteDialog(BuildContext context, Tree tree) {
 }
 
 // tree es el arbol a editar, si tree == null es porque se está creando un árbol
-void treeDialog(
-    BuildContext context, String title, Tree? tree, Function refreshFunction) {
+void treeDialog(BuildContext context, String title, Repository repository,
+    Tree? tree, Function refreshFunction) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String name = '';
   String scientificName = '';
@@ -231,8 +190,8 @@ void treeDialog(
 }
 
 // user es el usuario a editar, si user == null es porque se está creando un usuario
-void userDialog(
-    BuildContext context, String title, User? user, Function refreshFunction) {
+void userDialog(BuildContext context, String title, Repository repository,
+    User? user, Function refreshFunction) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String inputName = '';
   String inputEmail = '';

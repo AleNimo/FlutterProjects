@@ -3,25 +3,34 @@ import 'package:go_router/go_router.dart';
 
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:collection/collection.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.repository});
+  LoginScreen({super.key, required this.repository});
 
   final Repository repository;
+
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late Future<List<User>> usersRequest;
-
   @override
   void initState() {
     super.initState();
-    usersRequest = widget.repository.getUsers();
+    checkActiveUser();
+  }
+
+  void checkActiveUser() async {
+    final int? activeUserId = await widget.asyncPrefs.getInt('activeUserId');
+
+    if (activeUserId != null) {
+      if (mounted) context.go('/trees/$activeUserId');
+    }
   }
 
   @override
@@ -33,14 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
             title: const Text('Login'),
           ),
           body: FutureBuilder(
-            future: usersRequest,
+            future: widget.repository.getUsers(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else if (snapshot.hasData) {
-                return LoginWidgets(users: snapshot.data!);
+                return LoginWidgets(
+                  users: snapshot.data!,
+                  asyncPrefs: widget.asyncPrefs,
+                );
               } else {
                 return Center(child: Text(snapshot.error.toString()));
               }
@@ -51,9 +63,11 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginWidgets extends StatefulWidget {
-  const LoginWidgets({super.key, required this.users});
+  const LoginWidgets(
+      {super.key, required this.users, required this.asyncPrefs});
 
   final List<User> users;
+  final SharedPreferencesAsync asyncPrefs;
 
   @override
   State<LoginWidgets> createState() => _LoginWidgetsState();
@@ -115,7 +129,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
               controller: _inputPassword),
         ),
         OutlinedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_inputName.text == '') {
                 showSnackbar(context, 'Ingresar usuario');
               } else if (_inputPassword.text == '') {
@@ -126,8 +140,13 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   User userMatched = widget.users
                       .firstWhere((user) => user.name == _inputName.text);
                   if (userMatched.password == _inputPassword.text) {
-                    context.go(
-                        '/trees/${userMatched.id}'); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
+                    await widget.asyncPrefs
+                        .setInt('activeUserId', userMatched.id!);
+
+                    if (context.mounted) {
+                      context.go('/trees/${userMatched.id!}');
+                    }
+                    //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
                   } else {
                     showSnackbar(context, 'Contraseña incorrecta');
                   }
