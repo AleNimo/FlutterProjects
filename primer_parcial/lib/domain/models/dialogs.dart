@@ -62,9 +62,10 @@ void treeDialog(BuildContext context, String title, Repository repository,
                     children: [
                       TextFormField(
                         initialValue: (tree != null) ? tree.name : '',
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Nombre informal',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
@@ -74,12 +75,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                         },
                         onSaved: (value) => name = value!,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       TextFormField(
                         initialValue: (tree != null) ? tree.scientificName : '',
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Nombre científico',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
@@ -89,12 +91,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                         },
                         onSaved: (value) => scientificName = value!,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       TextFormField(
                         initialValue: (tree != null) ? tree.family : '',
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Familia',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
@@ -104,13 +107,14 @@ void treeDialog(BuildContext context, String title, Repository repository,
                         },
                         onSaved: (value) => family = value!,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       TextFormField(
                         initialValue:
                             (tree != null) ? tree.quantityBsAs.toString() : '',
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Cantidad en CABA',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
@@ -124,12 +128,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                           quantityBsAs = int.tryParse(value ?? '') ?? 0;
                         },
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       TextFormField(
                         initialValue: (tree != null) ? tree.imageURL : '',
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'URL de imagen',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onSaved: (value) => imageURL = value,
                       ),
@@ -222,9 +227,10 @@ void userDialog(BuildContext context, String title, Repository repository,
                       children: [
                         TextFormField(
                           initialValue: (user != null) ? user.name : '',
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Nombre',
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
@@ -234,12 +240,13 @@ void userDialog(BuildContext context, String title, Repository repository,
                           },
                           onSaved: (value) => inputName = value!,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
                         TextFormField(
                           initialValue: (user != null) ? user.email : '',
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Email',
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
@@ -249,13 +256,14 @@ void userDialog(BuildContext context, String title, Repository repository,
                           },
                           onSaved: (value) => inputEmail = value!,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
                         TextFormField(
                           initialValue: (user != null) ? user.password : '',
                           obscureText: true,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Contraseña',
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
@@ -265,13 +273,14 @@ void userDialog(BuildContext context, String title, Repository repository,
                           },
                           onSaved: (value) => inputPassword = value!,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
                         TextFormField(
                           initialValue:
                               (user != null) ? user.age.toString() : '',
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Edad',
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           validator: (String? value) {
                             if (value != null) {
@@ -285,7 +294,7 @@ void userDialog(BuildContext context, String title, Repository repository,
                             inputAge = int.tryParse(value ?? '');
                           },
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
                         ExpansionTile(
                           title: const Text('Género'),
                           subtitle: Text(selectedGender.name),

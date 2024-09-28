@@ -1,11 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:collection/collection.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key, required this.repository});
@@ -76,102 +75,104 @@ class LoginWidgets extends StatefulWidget {
 class _LoginWidgetsState extends State<LoginWidgets> {
   bool _isObscure = true;
 
-  //El 'final' no permite que cambie la referencia a esta variable (constante en tiempo de ejecución)
-  final TextEditingController _inputName = TextEditingController();
-  //Lo defino en una variable para poder acceder al texto ingresado
-  final TextEditingController _inputPassword = TextEditingController();
+  String? userName;
+  String? password;
+  User? matchedUser;
 
-  void showSnackbar(BuildContext context, String text) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    final snackbar = SnackBar(
-      duration: const Duration(seconds: 1),
-      content: Text(text),
-      // action: SnackBarAction(
-      //   label: 'Ok',
-      //   onPressed: () {},
-      // ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackbar);
-  }
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormFieldState> userKey = GlobalKey<FormFieldState>();
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
-          child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Usuario',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      child: Form(
+        key: formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
+                child: TextFormField(
+                  key: userKey,
+                  decoration: InputDecoration(
+                    labelText: 'Usuario',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  validator: (String? inputUser) {
+                    if (inputUser == null || inputUser.isEmpty) {
+                      return 'Ingresar usuario';
+                    } else {
+                      matchedUser = widget.users
+                          .firstWhereOrNull((user) => user.name == inputUser);
+                      if (matchedUser == null) {
+                        return 'Usuario inválido';
+                      }
+                    }
+                    return null;
+                  },
+                  onSaved: (inputUser) => userName = inputUser!,
+                ),
               ),
-              controller: _inputName),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
-          child: TextField(
-              obscureText: _isObscure,
-              decoration: InputDecoration(
-                  hintText: 'Contraseña',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  suffixIcon: IconButton(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
+                child: TextFormField(
+                  obscureText: _isObscure,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    suffixIcon: IconButton(
                       icon: Icon(
                           _isObscure ? Icons.visibility : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _isObscure = !_isObscure;
                         });
-                      })),
-              controller: _inputPassword),
-        ),
-        OutlinedButton(
-            onPressed: () async {
-              if (_inputName.text == '') {
-                showSnackbar(context, 'Ingresar usuario');
-              } else if (_inputPassword.text == '') {
-                showSnackbar(context, 'Ingresar contraseña');
-              } else {
-                //Sin usar firstWhereOrNull (Uso manejo de excepciones):
-                try {
-                  User userMatched = widget.users
-                      .firstWhere((user) => user.name == _inputName.text);
-                  if (userMatched.password == _inputPassword.text) {
+                      },
+                    ),
+                  ),
+                  validator: (String? inputPassword) {
+                    if (inputPassword == null || inputPassword.isEmpty) {
+                      return 'Ingresar contraseña';
+                    } else {
+                      final validUser = userKey.currentState!.validate();
+
+                      if (validUser) {
+                        if (matchedUser!.password != inputPassword) {
+                          return 'Contraseña incorrecta';
+                        }
+                      }
+                    }
+                    return null;
+                  },
+                  onSaved: (inputPassword) => password = inputPassword!,
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () async {
+                  final isValid = formKey.currentState!.validate();
+
+                  if (isValid) {
+                    formKey.currentState!.save();
+
                     await widget.asyncPrefs
-                        .setInt('activeUserId', userMatched.id!);
+                        .setInt('activeUserId', matchedUser!.id!);
 
                     if (context.mounted) {
-                      context.go('/trees/${userMatched.id!}');
+                      context.go('/trees/${matchedUser!.id!}');
                     }
-                    //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
-                  } else {
-                    showSnackbar(context, 'Contraseña incorrecta');
                   }
-                } catch (e) {
-                  showSnackbar(context, 'No existe tal usuario');
-                }
-
-                //Usando paquete de collection
-                // User? userMatched = users.firstWhereOrNull((user) => user.name == _inputName.text); //Asumo que todos los usuarios son distintos (un solo elemento)
-                // if(userMatched == null)
-                // {
-                //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No existe tal usuario')));
-                // }
-                // else if(userMatched.password==_inputPassword.text)
-                // {
-                //   context.push('/home', extra: _inputName.text); //context.push apila pantallas y te deja volver - context.go te manda a la pantalla y no se puede volver
-                // }
-                // else
-                // {
-                //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña incorrecta')));
-                // }
-              }
-            },
-            child: const Text('Login'))
-      ],
-    ));
+                },
+                child: const Text('Login'),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
