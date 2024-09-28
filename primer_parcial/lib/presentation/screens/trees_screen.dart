@@ -84,8 +84,8 @@ class _TreesScreenState extends State<TreesScreen> {
                   ),
             floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  treeDialog(context, 'Ingresar nuevo árbol', widget.repository,
-                      null, refreshList);
+                  treeDialog(context, 'Nuevo árbol', widget.repository, null,
+                      refreshList);
                 },
                 child: const Icon(Icons.add)),
             drawer: MenuDrawer(
