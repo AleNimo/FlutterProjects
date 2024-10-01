@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:primer_parcial/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:primer_parcial/core/menu/menu_items.dart';
@@ -197,7 +200,7 @@ class _TreesView extends StatelessWidget {
   }
 }
 
-class _TreeItem extends StatelessWidget {
+class _TreeItem extends StatefulWidget {
   const _TreeItem({required this.tree, required this.onRefresh});
 
   final Tree tree;
@@ -205,44 +208,88 @@ class _TreeItem extends StatelessWidget {
   final Function onRefresh;
 
   @override
+  State<_TreeItem> createState() => _TreeItemState();
+}
+
+class _TreeItemState extends State<_TreeItem> {
+  late final Future<File?> image;
+
+  @override
+  void initState() {
+    super.initState();
+    image = getImage();
+  }
+
+  Future<File?> getImage() async {
+    final Directory imagesDir =
+        Directory('${userDocsDirectory.path}/images/${widget.tree.id}');
+
+    if (imagesDir.existsSync()) {
+      final List<FileSystemEntity> entities = await imagesDir.list().toList();
+
+      var images = entities.whereType<File>();
+
+      if (images.isNotEmpty) {
+        return images.first;
+      } else {
+        return null;
+      }
+    } else {
+      imagesDir.createSync(recursive: true);
+      return null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      //Widget que permite agregar gestos a widgets que no lo tienen (en este caso no es necesario)
+      //Widget que permite agregar gestos a widgets que no lo tienen (en este caso no era necesario)
       onTap: () async {
-        await context.push('/treeDetail/${tree.id}');
+        await context.push('/treeDetail/${widget.tree.id}');
         if (globalFlagRefreshList == true) {
           globalFlagRefreshList = false;
-          onRefresh();
+          widget.onRefresh();
         }
       },
       child: Card(
         child: ListTile(
           leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              tree.imageURL!,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                } else {
-                  return const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const FaIcon(FontAwesomeIcons.tree, size: 50);
-              },
-            ),
-          ),
-          title: Text(tree.name),
-          subtitle: Text(tree.scientificName),
+              borderRadius: BorderRadius.circular(8),
+              child: FutureBuilder(
+                future: image,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: Center(child: CircularProgressIndicator()));
+                  } else if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  } else if (snapshot.hasData) {
+                    return Image.memory(
+                      snapshot.data!.readAsBytesSync(),
+                      errorBuilder: (context, error, stackTrace) {
+                        return const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: Center(
+                                child:
+                                    FaIcon(FontAwesomeIcons.tree, size: 20)));
+                      },
+                    );
+                  } else {
+                    //Sin datos
+                    return const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: Center(
+                            child: FaIcon(FontAwesomeIcons.tree, size: 20)));
+                  }
+                },
+              )),
+          title: Text(widget.tree.name),
+          subtitle: Text(widget.tree.scientificName),
           trailing: const Icon(Icons.arrow_forward),
-          // onTap: () {
-          //   context.push('/treeDetail/${tree.id}');
-          // },
         ),
       ),
     );

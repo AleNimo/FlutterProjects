@@ -6,8 +6,8 @@ import 'package:primer_parcial/domain/repositories/repository.dart';
 import 'package:primer_parcial/main.dart';
 
 class LocalRepository implements Repository {
-  final UserDao _userDao = database.userDao;
-  final TreeDao _treeDao = database.treeDao;
+  final UserDao _userDao = localDatabase.userDao;
+  final TreeDao _treeDao = localDatabase.treeDao;
 
   @override
   Future<List<User>> getUsers() {
@@ -20,7 +20,7 @@ class LocalRepository implements Repository {
   }
 
   @override
-  Future<void> insertUser(User user) {
+  Future<int> insertUser(User user) {
     return _userDao.insertUser(user);
   }
 
@@ -45,7 +45,7 @@ class LocalRepository implements Repository {
   }
 
   @override
-  Future<void> insertTree(Tree tree) {
+  Future<int> insertTree(Tree tree) {
     return _treeDao.insertTree(tree);
   }
 

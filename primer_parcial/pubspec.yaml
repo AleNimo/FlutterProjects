@@ -11,9 +11,13 @@ dependencies:
   floor: ^1.5.0
   flutter:
     sdk: flutter
+  flutter_colorpicker: ^1.1.0
+  flutter_riverpod: ^2.5.1
   font_awesome_flutter: ^10.7.0
   go_router: ^14.2.6
+  image_picker: ^1.1.2
   my_library: ^0.0.1
+  path_provider: ^2.1.4
   shared_preferences: ^2.3.2
 
 dev_dependencies:
@@ -25,3 +29,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
+    - assets/1/
+    - assets/2/
+    - assets/3/
+    - assets/4/

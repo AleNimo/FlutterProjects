@@ -1,10 +1,13 @@
 // required package imports
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:floor/floor.dart';
 import 'package:primer_parcial/core/database/type_converter.dart';
 import 'package:primer_parcial/data/fake_repository.dart';
 import 'package:primer_parcial/domain/models/user.dart';
+import 'package:primer_parcial/main.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'package:primer_parcial/data/user_dao.dart';
@@ -21,6 +24,7 @@ abstract class AppDatabase extends FloorDatabase {
     return $FloorAppDatabase.databaseBuilder(name).addCallback(Callback(
       onCreate: (database, version) async {
         await _prepopulate(database);
+        await _saveAssetsInDevice();
       },
     )).build();
   }
@@ -58,9 +62,43 @@ abstract class AppDatabase extends FloorDatabase {
           'scientificName': item.scientificName,
           'family': item.family,
           'quantityBsAs': item.quantityBsAs,
-          'imageURL': item.imageURL,
         },
       ).insert(tree, OnConflictStrategy.replace);
+    }
+  }
+
+  static _saveAssetsInDevice() async {
+    final String imagesPath = '${userDocsDirectory.path}/images';
+
+    final Directory imagesDir = Directory(imagesPath);
+    if (!imagesDir.existsSync()) {
+      imagesDir.createSync(recursive: true);
+    }
+
+    final AssetManifest assetManifest =
+        await AssetManifest.loadFromAssetBundle(rootBundle);
+    final List<String> assets = assetManifest.listAssets();
+
+    for (String asset in assets) {
+      List<String> assetSplit = asset.split('/');
+      if (assetSplit.length > 1) {
+        int? assetGroupNumber = int.tryParse(assetSplit[1]);
+        if (assetGroupNumber != null) {
+          // Creo el subdirectorio si para cada item si no existe
+          final Directory groupDir = Directory('$imagesPath/$assetGroupNumber');
+          if (!groupDir.existsSync()) {
+            groupDir.createSync(recursive: true);
+          }
+
+          // Cargo el asset como bytes para después grabarlos (no puedo abrirlo como archivo normal)
+          final ByteData data = await rootBundle.load(asset);
+          final List<int> bytes = data.buffer.asUint8List();
+
+          // Write the asset to the device
+          final File file = File('${groupDir.path}/${assetSplit[2]}');
+          await file.writeAsBytes(bytes);
+        }
+      }
     }
   }
 }

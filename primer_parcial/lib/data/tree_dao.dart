@@ -13,7 +13,7 @@ abstract class TreeDao {
   Future<Tree?> findTreeById(int id);
 
   @insert
-  Future<void> insertTree(Tree tree);
+  Future<int> insertTree(Tree tree);
 
   @update
   Future<void> updateTree(Tree tree);

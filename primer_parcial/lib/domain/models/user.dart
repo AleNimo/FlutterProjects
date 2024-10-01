@@ -38,15 +38,21 @@ class User {
     this.gender = Gender.Otro,
   });
 
-  // setActive() {
-  //   _isActive = true;
-  // }
-
-  // setInactive() {
-  //   _isActive = false;
-  // }
-
-  // bool isActive() {
-  //   return _isActive;
-  // }
+  User copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? password,
+    int? age,
+    Gender? gender,
+  }) {
+    return User(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      age: age ?? this.age,
+      gender: gender ?? this.gender,
+    );
+  }
 }

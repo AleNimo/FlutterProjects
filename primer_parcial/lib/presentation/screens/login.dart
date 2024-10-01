@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:primer_parcial/domain/models/dialogs.dart';
 
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
@@ -28,44 +29,52 @@ class _LoginScreenState extends State<LoginScreen> {
     final int? activeUserId = await widget.asyncPrefs.getInt('activeUserId');
 
     if (activeUserId != null) {
-      if (mounted) context.go('/trees/$activeUserId');
+      User? activeUser = await widget.repository.getUserById(activeUserId);
+      if (activeUser != null) {
+        if (mounted) context.go('/trees/$activeUserId');
+      } else {
+        await widget.asyncPrefs.remove('activeUserId');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Login'),
-          ),
-          body: FutureBuilder(
-            future: widget.repository.getUsers(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasData) {
-                return LoginWidgets(
-                  users: snapshot.data!,
-                  asyncPrefs: widget.asyncPrefs,
-                );
-              } else {
-                return Center(child: Text(snapshot.error.toString()));
-              }
-            },
-          ),
-        ));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
+      body: FutureBuilder(
+        future: widget.repository.getUsers(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData) {
+            return LoginWidgets(
+              users: snapshot.data!,
+              repository: widget.repository,
+              asyncPrefs: widget.asyncPrefs,
+            );
+          } else {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+        },
+      ),
+    );
   }
 }
 
 class LoginWidgets extends StatefulWidget {
   const LoginWidgets(
-      {super.key, required this.users, required this.asyncPrefs});
+      {super.key,
+      required this.users,
+      required this.repository,
+      required this.asyncPrefs});
 
   final List<User> users;
+  final Repository repository;
   final SharedPreferencesAsync asyncPrefs;
 
   @override
@@ -84,18 +93,22 @@ class _LoginWidgetsState extends State<LoginWidgets> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Form(
-        key: formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
-                child: TextFormField(
+    return Column(
+      children: [
+        Image.asset(
+          'assets/logo.png',
+          height: 200,
+          fit: BoxFit.contain,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextFormField(
                   key: userKey,
                   decoration: InputDecoration(
                     labelText: 'Usuario',
@@ -116,10 +129,8 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   },
                   onSaved: (inputUser) => userName = inputUser!,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(50, 8, 50, 8),
-                child: TextFormField(
+                const SizedBox(height: 10),
+                TextFormField(
                   obscureText: _isObscure,
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
@@ -128,11 +139,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                     suffixIcon: IconButton(
                       icon: Icon(
                           _isObscure ? Icons.visibility : Icons.visibility_off),
-                      onPressed: () {
-                        setState(() {
-                          _isObscure = !_isObscure;
-                        });
-                      },
+                      onPressed: () => setState(() => _isObscure = !_isObscure),
                     ),
                   ),
                   validator: (String? inputPassword) {
@@ -151,28 +158,41 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   },
                   onSaved: (inputPassword) => password = inputPassword!,
                 ),
-              ),
-              OutlinedButton(
-                onPressed: () async {
-                  final isValid = formKey.currentState!.validate();
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: () async {
+                    final isValid = formKey.currentState!.validate();
 
-                  if (isValid) {
-                    formKey.currentState!.save();
+                    if (isValid) {
+                      formKey.currentState!.save();
 
-                    await widget.asyncPrefs
-                        .setInt('activeUserId', matchedUser!.id!);
+                      await widget.asyncPrefs
+                          .setInt('activeUserId', matchedUser!.id!);
 
-                    if (context.mounted) {
-                      context.go('/trees/${matchedUser!.id!}');
+                      if (context.mounted) {
+                        context.go('/trees/${matchedUser!.id!}');
+                      }
                     }
-                  }
-                },
-                child: const Text('Login'),
-              )
-            ],
+                  },
+                  child: const Text('Login'),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('¿No tenés una cuenta?'),
+                    TextButton(
+                        onPressed: () {
+                          userDialog(context, 'Registrarse', widget.repository,
+                              null, null);
+                        },
+                        child: const Text('Registrarse'))
+                  ],
+                )
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

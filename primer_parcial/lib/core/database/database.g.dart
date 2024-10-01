@@ -98,7 +98,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Tree` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `scientificName` TEXT NOT NULL, `family` TEXT NOT NULL, `quantityBsAs` INTEGER NOT NULL, `imageURL` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `Tree` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `scientificName` TEXT NOT NULL, `family` TEXT NOT NULL, `quantityBsAs` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL, `age` INTEGER, `gender` INTEGER NOT NULL)');
 
@@ -132,8 +132,7 @@ class _$TreeDao extends TreeDao {
                   'name': item.name,
                   'scientificName': item.scientificName,
                   'family': item.family,
-                  'quantityBsAs': item.quantityBsAs,
-                  'imageURL': item.imageURL
+                  'quantityBsAs': item.quantityBsAs
                 }),
         _treeUpdateAdapter = UpdateAdapter(
             database,
@@ -144,8 +143,7 @@ class _$TreeDao extends TreeDao {
                   'name': item.name,
                   'scientificName': item.scientificName,
                   'family': item.family,
-                  'quantityBsAs': item.quantityBsAs,
-                  'imageURL': item.imageURL
+                  'quantityBsAs': item.quantityBsAs
                 }),
         _treeDeletionAdapter = DeletionAdapter(
             database,
@@ -156,8 +154,7 @@ class _$TreeDao extends TreeDao {
                   'name': item.name,
                   'scientificName': item.scientificName,
                   'family': item.family,
-                  'quantityBsAs': item.quantityBsAs,
-                  'imageURL': item.imageURL
+                  'quantityBsAs': item.quantityBsAs
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -180,8 +177,7 @@ class _$TreeDao extends TreeDao {
             name: row['name'] as String,
             scientificName: row['scientificName'] as String,
             family: row['family'] as String,
-            quantityBsAs: row['quantityBsAs'] as int,
-            imageURL: row['imageURL'] as String?));
+            quantityBsAs: row['quantityBsAs'] as int));
   }
 
   @override
@@ -192,14 +188,14 @@ class _$TreeDao extends TreeDao {
             name: row['name'] as String,
             scientificName: row['scientificName'] as String,
             family: row['family'] as String,
-            quantityBsAs: row['quantityBsAs'] as int,
-            imageURL: row['imageURL'] as String?),
+            quantityBsAs: row['quantityBsAs'] as int),
         arguments: [id]);
   }
 
   @override
-  Future<void> insertTree(Tree tree) async {
-    await _treeInsertionAdapter.insert(tree, OnConflictStrategy.abort);
+  Future<int> insertTree(Tree tree) {
+    return _treeInsertionAdapter.insertAndReturnId(
+        tree, OnConflictStrategy.abort);
   }
 
   @override
@@ -292,8 +288,9 @@ class _$UserDao extends UserDao {
   }
 
   @override
-  Future<void> insertUser(User user) async {
-    await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
+  Future<int> insertUser(User user) {
+    return _userInsertionAdapter.insertAndReturnId(
+        user, OnConflictStrategy.abort);
   }
 
   @override

@@ -1,19 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:primer_parcial/domain/models/snackbar.dart';
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
+import 'package:primer_parcial/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 bool globalFlagRefreshList = false;
 
-void deleteDialog(BuildContext context, Repository repository, Tree tree) {
+void deleteTreeDialog(BuildContext context, Repository repository, Tree tree) {
   showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
             title: const Text('¿Seguro que desea eliminar el árbol?'),
-            content: const Text('Esta acción no puede ser deshecha.'),
+            content: const Text('Esta acción es permanente.'),
             actions: [
               TextButton(
                   onPressed: () {
@@ -23,9 +29,15 @@ void deleteDialog(BuildContext context, Repository repository, Tree tree) {
               FilledButton(
                   onPressed: () async {
                     await repository.deleteTree(tree);
+
+                    final Directory imagesDir = Directory(
+                        '${userDocsDirectory.path}/images/${tree.id}');
+
+                    imagesDir.deleteSync(recursive: true);
+
                     globalFlagRefreshList = true;
                     if (context.mounted) {
-                      showSnackbar(context, 'Árbol eliminado exitosamente');
+                      showSnackbar(context, 'Árbol eliminado correctamente');
                       context
                         ..pop()
                         ..pop();
@@ -36,15 +48,172 @@ void deleteDialog(BuildContext context, Repository repository, Tree tree) {
           ));
 }
 
+void deleteUserDialog(BuildContext context, Repository repository, User user) {
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+  showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('¿Seguro que desea eliminar su cuenta?'),
+            content: const Text('Esta acción es permanente.'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: const Text('Cancelar')),
+              FilledButton(
+                  onPressed: () async {
+                    await repository.deleteUser(user);
+
+                    if (context.mounted) {
+                      await asyncPrefs.remove('activeUserId');
+                      if (context.mounted) context.go('/login');
+                    }
+                  },
+                  child: const Text('Eliminar')),
+            ],
+          ));
+}
+
+Future<bool> deleteImageDialog(BuildContext context) async {
+  return await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('¿Seguro que desea eliminar la foto?'),
+            content: const Text('Esta acción es permanente.'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    context.pop(false);
+                  },
+                  child: const Text('Cancelar')),
+              FilledButton(
+                  onPressed: () {
+                    context.pop(true);
+                  },
+                  child: const Text('Eliminar')),
+            ],
+          ));
+}
+
+Future<Color?> colorDialog(BuildContext context, Color currentColor) async {
+  return await showDialog(
+    barrierDismissible: true,
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Seleccionar tema'),
+      content: StatefulBuilder(builder: (context, setState) {
+        return SingleChildScrollView(
+          child: HueRingPicker(
+            pickerColor: currentColor,
+            onColorChanged: (newColor) =>
+                setState(() => currentColor = newColor),
+          ),
+        );
+      }),
+      actions: [
+        TextButton(
+            onPressed: () {
+              context.pop();
+            },
+            child: const Text('Cancelar')),
+        FilledButton(
+            onPressed: () {
+              context.pop(currentColor);
+            },
+            child: const Text('Aceptar')),
+      ],
+    ),
+  );
+}
+
+void imageDialog(BuildContext context, String imagePath, Function refreshImage,
+    Function refreshImagesList) {
+  final ImagePicker imgPicker = ImagePicker();
+
+  showDialog(
+    barrierDismissible: true,
+    context: context,
+    builder: (context) {
+      final textStyle = Theme.of(context).textTheme;
+      return Dialog(
+        insetPadding:
+            const EdgeInsets.symmetric(horizontal: 120.0, vertical: 10.0),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Editar',
+                style: textStyle.titleMedium,
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.image_search),
+                label: const Text('Galería'),
+                onPressed: () async {
+                  XFile? xImage =
+                      await imgPicker.pickImage(source: ImageSource.gallery);
+                  if (xImage != null) {
+                    File newImage = File(xImage.path);
+                    newImage.copy(imagePath);
+                    refreshImage();
+                  }
+
+                  if (context.mounted) context.pop();
+                },
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Cámara'),
+                onPressed: () async {
+                  XFile? xImage =
+                      await imgPicker.pickImage(source: ImageSource.camera);
+                  if (xImage != null) {
+                    File newImage = File(xImage.path);
+                    newImage.copy(imagePath);
+                    refreshImage();
+                  }
+
+                  if (context.mounted) context.pop();
+                },
+              ),
+              const Divider(),
+              TextButton.icon(
+                icon: const Icon(Icons.hide_image_outlined),
+                label: const Text('Eliminar'),
+                onPressed: () async {
+                  if (await deleteImageDialog(context)) {
+                    File image = File(imagePath);
+                    image.delete();
+                    refreshImagesList();
+                  }
+                  if (context.mounted) context.pop();
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 // tree es el arbol a editar, si tree == null es porque se está creando un árbol
 void treeDialog(BuildContext context, String title, Repository repository,
     Tree? tree, Function refreshFunction) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  int treeId;
   String name = '';
   String scientificName = '';
   String family = '';
   int quantityBsAs = 0;
-  String? imageURL;
+
+  final ImagePicker imgPicker = ImagePicker();
+  List<XFile>? pickedImages;
 
   showDialog(
       barrierDismissible: true,
@@ -141,21 +310,18 @@ void treeDialog(BuildContext context, String title, Repository repository,
                                 quantityBsAs = int.tryParse(value ?? '') ?? 0;
                               },
                             ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              initialValue: (tree != null) ? tree.imageURL : '',
-                              decoration: InputDecoration(
-                                labelText: 'URL de imagen',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                              onSaved: (value) => imageURL = value,
-                            ),
                           ],
                         ),
                       ),
                     ),
                   ),
+                ),
+                TextButton.icon(
+                  label: const Text('Agregar fotos'),
+                  icon: const Icon(Icons.add_a_photo_outlined),
+                  onPressed: () async {
+                    pickedImages = await imgPicker.pickMultiImage(limit: 10);
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -173,20 +339,21 @@ void treeDialog(BuildContext context, String title, Repository repository,
                             formKey.currentState!.save();
 
                             if (tree == null) {
-                              await repository.insertTree(
+                              treeId = await repository.insertTree(
                                 Tree(
                                   name: name,
                                   scientificName: scientificName,
                                   family: family,
                                   quantityBsAs: quantityBsAs,
-                                  imageURL: imageURL,
                                 ),
                               );
+
                               if (context.mounted) {
                                 showSnackbar(
-                                    context, 'Árbol agregado exitosamente');
+                                    context, 'Árbol agregado correctamente');
                               }
                             } else {
+                              treeId = tree.id!;
                               await repository.updateTree(
                                 Tree(
                                   id: tree.id,
@@ -194,15 +361,30 @@ void treeDialog(BuildContext context, String title, Repository repository,
                                   scientificName: scientificName,
                                   family: family,
                                   quantityBsAs: quantityBsAs,
-                                  imageURL: imageURL,
                                 ),
                               );
                               globalFlagRefreshList = true;
                               if (context.mounted) {
                                 showSnackbar(
-                                    context, 'Árbol editado exitosamente');
+                                    context, 'Árbol editado correctamente');
                               }
                             }
+
+                            if (pickedImages != null) {
+                              if (pickedImages!.isNotEmpty) {
+                                final Directory imagesDir = Directory(
+                                    '${userDocsDirectory.path}/images/$treeId');
+                                if (!imagesDir.existsSync()) {
+                                  imagesDir.createSync(recursive: true);
+                                }
+                                for (final file in pickedImages!) {
+                                  File image = File(file.path);
+
+                                  image.copy('${imagesDir.path}/${file.name}');
+                                }
+                              }
+                            }
+
                             refreshFunction();
                             if (context.mounted) context.pop();
                           }
@@ -219,13 +401,16 @@ void treeDialog(BuildContext context, String title, Repository repository,
 
 // user es el usuario a editar, si user == null es porque se está creando un usuario
 void userDialog(BuildContext context, String title, Repository repository,
-    User? user, Function refreshFunction) {
+    User? user, Function? refreshUser) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
   String inputName = '';
   String inputEmail = '';
   String inputPassword = '';
   int? inputAge = 0;
   Gender selectedGender;
+
+  bool _isObscure = true;
 
   if (user != null) {
     selectedGender = user.gender;
@@ -297,12 +482,19 @@ void userDialog(BuildContext context, String title, Repository repository,
                                 TextFormField(
                                   initialValue:
                                       (user != null) ? user.password : '',
-                                  obscureText: true,
+                                  obscureText: _isObscure,
                                   decoration: InputDecoration(
                                     labelText: 'Contraseña',
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_isObscure
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                      onPressed: () => setState(
+                                          () => _isObscure = !_isObscure),
+                                    ),
                                   ),
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
@@ -394,7 +586,7 @@ void userDialog(BuildContext context, String title, Repository repository,
                               formKey.currentState!.save();
 
                               if (user == null) {
-                                await repository.insertUser(
+                                int userId = await repository.insertUser(
                                   User(
                                     name: inputName,
                                     email: inputEmail,
@@ -403,9 +595,10 @@ void userDialog(BuildContext context, String title, Repository repository,
                                     gender: selectedGender,
                                   ),
                                 );
+
+                                await asyncPrefs.setInt('activeUserId', userId);
                                 if (context.mounted) {
-                                  showSnackbar(
-                                      context, 'Usuario agregado exitosamente');
+                                  context.go('/trees/$userId');
                                 }
                               } else {
                                 await repository.updateUser(
@@ -420,12 +613,11 @@ void userDialog(BuildContext context, String title, Repository repository,
                                 );
                                 globalFlagRefreshList = true;
                                 if (context.mounted) {
-                                  showSnackbar(
-                                      context, 'Usuario editado exitosamente');
+                                  showSnackbar(context, 'Usuario editado');
+                                  context.pop();
                                 }
+                                if (refreshUser != null) refreshUser();
                               }
-                              await refreshFunction();
-                              if (context.mounted) context.pop();
                             }
                           },
                           child: const Text('Aceptar')),

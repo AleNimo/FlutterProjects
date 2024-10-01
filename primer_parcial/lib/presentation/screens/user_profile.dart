@@ -46,17 +46,37 @@ class _UserProfileState extends State<UserProfile> {
             appBar: AppBar(
               title: const Text('Perfil de Usuario'),
             ),
-            body: Center(
-              child: Column(
+            body: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Stack(
                 children: [
-                  const Icon(
-                    Icons.person,
-                    size: 200,
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 200,
+                        ),
+                        Text('Nombre: ${user.name}'),
+                        Text('Email: ${user.email}'),
+                        Text('Edad: ${user.age}'),
+                        Text('Género: ${user.gender.name}'),
+                      ],
+                    ),
                   ),
-                  Text('Nombre: ${user.name}'),
-                  Text('Email: ${user.email}'),
-                  Text('Edad: ${user.age}'),
-                  Text('Género: ${user.gender.name}'),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        deleteUserDialog(context, widget.repository, user);
+                      },
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Eliminar'),
+                    ),
+                  ),
                 ],
               ),
             ),

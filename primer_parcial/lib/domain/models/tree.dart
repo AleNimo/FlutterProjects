@@ -9,7 +9,6 @@ class Tree {
   final String scientificName;
   final String family;
   final int quantityBsAs;
-  final String? imageURL;
 
   Tree({
     this.id,
@@ -17,7 +16,6 @@ class Tree {
     required this.scientificName,
     required this.family,
     required this.quantityBsAs,
-    this.imageURL,
   });
 
   Tree copyWith({
@@ -26,7 +24,6 @@ class Tree {
     String? scientificName,
     String? family,
     int? quantityBsAs,
-    String? imageURL,
   }) {
     return Tree(
       id: id ?? this.id,
@@ -34,7 +31,6 @@ class Tree {
       scientificName: scientificName ?? this.scientificName,
       family: family ?? this.family,
       quantityBsAs: quantityBsAs ?? this.quantityBsAs,
-      imageURL: imageURL ?? this.imageURL,
     );
   }
 }
