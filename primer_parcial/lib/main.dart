@@ -9,7 +9,6 @@ import 'package:primer_parcial/presentation/providers/language_provider.dart';
 import 'package:primer_parcial/presentation/providers/theme_provider.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 late AppDatabase localDatabase;
 
@@ -25,22 +24,8 @@ Future<void> main() async {
   // Creo la base de datos, y si es la primera vez la lleno con ejemplos del repositorio falso
   localDatabase = await AppDatabase.create('app_database.db');
 
-  final container = ProviderContainer();
-  final language =
-      await container.read(languageRepositoryProvider).getLanguage();
-
-  final asyncPrefs = SharedPreferencesAsync();
-  int? colorInt = await asyncPrefs.getInt('theme_color');
-  Color? selectedColor = (colorInt != null) ? Color(colorInt) : null;
-  bool? isDarkMode = await asyncPrefs.getBool('dark_mode');
-
-  runApp(ProviderScope(
-    overrides: [
-      languageProvider.overrideWith((ref) => language),
-      themeNotifierProvider.overrideWith((ref) =>
-          ThemeNotifier(selectedColor: selectedColor, isDarkMode: isDarkMode))
-    ],
-    child: const MainApp(),
+  runApp(const ProviderScope(
+    child: MainApp(),
   ));
 }
 

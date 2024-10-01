@@ -1,15 +1,19 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:primer_parcial/core/language/language.dart';
 import 'package:primer_parcial/domain/models/dialogs.dart';
 
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
+import 'package:primer_parcial/presentation/providers/language_provider.dart';
+import 'package:primer_parcial/presentation/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   LoginScreen({super.key, required this.repository});
 
   final Repository repository;
@@ -17,18 +21,39 @@ class LoginScreen extends StatefulWidget {
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    checkActiveUser();
+    readSavedParameters();
   }
 
-  void checkActiveUser() async {
+  void readSavedParameters() async {
+    final String? languageCode =
+        await widget.asyncPrefs.getString('language_code');
+    final int? colorInt = await widget.asyncPrefs.getInt('theme_color');
+    final bool? isDarkMode = await widget.asyncPrefs.getBool('dark_mode');
     final int? activeUserId = await widget.asyncPrefs.getInt('activeUserId');
+
+    if (languageCode != null) {
+      for (var language in Language.values) {
+        if (languageCode == language.code) {
+          ref.read(languageProvider.notifier).update((state) => language);
+        }
+      }
+    }
+
+    if (colorInt != null) {
+      Color color = Color(colorInt);
+      ref.read(themeNotifierProvider.notifier).setColorTheme(color);
+    }
+
+    if (isDarkMode != null) {
+      ref.read(themeNotifierProvider.notifier).setDarkMode(isDarkMode);
+    }
 
     if (activeUserId != null) {
       User? activeUser = await widget.repository.getUserById(activeUserId);

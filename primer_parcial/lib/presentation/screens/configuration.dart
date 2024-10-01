@@ -6,12 +6,15 @@ import 'package:primer_parcial/presentation/providers/language_provider.dart';
 import 'package:primer_parcial/presentation/providers/theme_provider.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Configuration extends ConsumerWidget {
   const Configuration({super.key});
 
   @override
   Widget build(BuildContext context, ref) {
+    final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+
     bool isDarkMode = ref.watch(themeNotifierProvider).isDarkMode;
     Color selectedColor = ref.watch(themeNotifierProvider).selectedColor;
 
@@ -45,9 +48,10 @@ class Configuration extends ConsumerWidget {
               onTap: () async {
                 Color? newColor = await colorDialog(context, selectedColor);
                 if (newColor != null) {
+                  await asyncPrefs.setInt('theme_color', newColor.value);
                   ref
                       .read(themeNotifierProvider.notifier)
-                      .changeColorTheme(newColor);
+                      .setColorTheme(newColor);
                 }
               },
             ),
@@ -61,8 +65,9 @@ class Configuration extends ConsumerWidget {
                 ],
               ),
               value: isDarkMode,
-              onChanged: (value) {
-                ref.read(themeNotifierProvider.notifier).toggleDarkMode();
+              onChanged: (value) async {
+                await asyncPrefs.setBool('dark_mode', value);
+                ref.read(themeNotifierProvider.notifier).setDarkMode(value);
               },
             ),
             const Divider(),
@@ -71,8 +76,12 @@ class Configuration extends ConsumerWidget {
               title:
                   Text(appLocalizations.language, style: textStyle.titleLarge),
               trailing: PopupMenuButton<Language>(
-                onSelected: (language) =>
-                    ref.read(languageRepositoryProvider).setLanguage(language),
+                onSelected: (language) async {
+                  asyncPrefs.setString('language_code', language.code);
+                  ref
+                      .read(languageProvider.notifier)
+                      .update((state) => language);
+                },
                 itemBuilder: (context) => [
                   for (var language in Language.values)
                     PopupMenuItem(
