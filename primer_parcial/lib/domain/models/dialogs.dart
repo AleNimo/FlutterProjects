@@ -11,21 +11,24 @@ import 'package:primer_parcial/domain/repositories/repository.dart';
 import 'package:primer_parcial/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 bool globalFlagRefreshList = false;
 
 void deleteTreeDialog(BuildContext context, Repository repository, Tree tree) {
+  final appLocalizations = AppLocalizations.of(context)!;
   showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
-            title: const Text('¿Seguro que desea eliminar el árbol?'),
-            content: const Text('Esta acción es permanente.'),
+            title: Text(appLocalizations.sureDeleteTree),
+            content: Text(appLocalizations.permanentAction),
             actions: [
               TextButton(
                   onPressed: () {
                     context.pop();
                   },
-                  child: const Text('Cancelar')),
+                  child: Text(appLocalizations.cancel)),
               FilledButton(
                   onPressed: () async {
                     await repository.deleteTree(tree);
@@ -37,31 +40,32 @@ void deleteTreeDialog(BuildContext context, Repository repository, Tree tree) {
 
                     globalFlagRefreshList = true;
                     if (context.mounted) {
-                      showSnackbar(context, 'Árbol eliminado correctamente');
+                      showSnackbar(context, appLocalizations.treeDeleted);
                       context
                         ..pop()
                         ..pop();
                     }
                   },
-                  child: const Text('Eliminar')),
+                  child: Text(appLocalizations.delete)),
             ],
           ));
 }
 
 void deleteUserDialog(BuildContext context, Repository repository, User user) {
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+  final appLocalizations = AppLocalizations.of(context)!;
   showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
-            title: const Text('¿Seguro que desea eliminar su cuenta?'),
-            content: const Text('Esta acción es permanente.'),
+            title: Text(appLocalizations.sureDeleteUser),
+            content: Text(appLocalizations.permanentAction),
             actions: [
               TextButton(
                   onPressed: () {
                     context.pop();
                   },
-                  child: const Text('Cancelar')),
+                  child: Text(appLocalizations.cancel)),
               FilledButton(
                   onPressed: () async {
                     await repository.deleteUser(user);
@@ -71,39 +75,42 @@ void deleteUserDialog(BuildContext context, Repository repository, User user) {
                       if (context.mounted) context.go('/login');
                     }
                   },
-                  child: const Text('Eliminar')),
+                  child: Text(appLocalizations.delete)),
             ],
           ));
 }
 
 Future<bool> deleteImageDialog(BuildContext context) async {
+  final appLocalizations = AppLocalizations.of(context)!;
   return await showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
-            title: const Text('¿Seguro que desea eliminar la foto?'),
-            content: const Text('Esta acción es permanente.'),
+            title: Text(appLocalizations.sureDeleteImage),
+            content: Text(appLocalizations.permanentAction),
             actions: [
               TextButton(
                   onPressed: () {
                     context.pop(false);
                   },
-                  child: const Text('Cancelar')),
+                  child: Text(appLocalizations.cancel)),
               FilledButton(
                   onPressed: () {
+                    showSnackbar(context, appLocalizations.imageDeleted);
                     context.pop(true);
                   },
-                  child: const Text('Eliminar')),
+                  child: Text(appLocalizations.delete)),
             ],
           ));
 }
 
 Future<Color?> colorDialog(BuildContext context, Color currentColor) async {
+  final appLocalizations = AppLocalizations.of(context)!;
   return await showDialog(
     barrierDismissible: true,
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Seleccionar tema'),
+      title: Text(appLocalizations.selectTheme),
       content: StatefulBuilder(builder: (context, setState) {
         return SingleChildScrollView(
           child: HueRingPicker(
@@ -118,12 +125,12 @@ Future<Color?> colorDialog(BuildContext context, Color currentColor) async {
             onPressed: () {
               context.pop();
             },
-            child: const Text('Cancelar')),
+            child: Text(appLocalizations.cancel)),
         FilledButton(
             onPressed: () {
               context.pop(currentColor);
             },
-            child: const Text('Aceptar')),
+            child: Text(appLocalizations.accept)),
       ],
     ),
   );
@@ -132,6 +139,7 @@ Future<Color?> colorDialog(BuildContext context, Color currentColor) async {
 void imageDialog(BuildContext context, String imagePath, Function refreshImage,
     Function refreshImagesList) {
   final ImagePicker imgPicker = ImagePicker();
+  final appLocalizations = AppLocalizations.of(context)!;
 
   showDialog(
     barrierDismissible: true,
@@ -148,12 +156,12 @@ void imageDialog(BuildContext context, String imagePath, Function refreshImage,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Editar',
+                appLocalizations.edit,
                 style: textStyle.titleMedium,
               ),
               TextButton.icon(
                 icon: const Icon(Icons.image_search),
-                label: const Text('Galería'),
+                label: Text(appLocalizations.gallery),
                 onPressed: () async {
                   XFile? xImage =
                       await imgPicker.pickImage(source: ImageSource.gallery);
@@ -168,7 +176,7 @@ void imageDialog(BuildContext context, String imagePath, Function refreshImage,
               ),
               TextButton.icon(
                 icon: const Icon(Icons.camera_alt),
-                label: const Text('Cámara'),
+                label: Text(appLocalizations.camera),
                 onPressed: () async {
                   XFile? xImage =
                       await imgPicker.pickImage(source: ImageSource.camera);
@@ -184,7 +192,7 @@ void imageDialog(BuildContext context, String imagePath, Function refreshImage,
               const Divider(),
               TextButton.icon(
                 icon: const Icon(Icons.hide_image_outlined),
-                label: const Text('Eliminar'),
+                label: Text(appLocalizations.delete),
                 onPressed: () async {
                   if (await deleteImageDialog(context)) {
                     File image = File(imagePath);
@@ -220,6 +228,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
       context: context,
       builder: (context) {
         final textStyle = Theme.of(context).textTheme;
+        final appLocalizations = AppLocalizations.of(context)!;
         return Dialog(
           insetPadding:
               const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
@@ -243,13 +252,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                             TextFormField(
                               initialValue: (tree != null) ? tree.name : '',
                               decoration: InputDecoration(
-                                labelText: 'Nombre informal',
+                                labelText: appLocalizations.commonName,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
                               validator: (String? value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Nombre vacío';
+                                  return appLocalizations.enterName;
                                 }
                                 return null;
                               },
@@ -260,13 +269,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                               initialValue:
                                   (tree != null) ? tree.scientificName : '',
                               decoration: InputDecoration(
-                                labelText: 'Nombre científico',
+                                labelText: appLocalizations.scientificName,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
                               validator: (String? value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Nombre científico vacío';
+                                  return appLocalizations.enterScientificName;
                                 }
                                 return null;
                               },
@@ -276,13 +285,13 @@ void treeDialog(BuildContext context, String title, Repository repository,
                             TextFormField(
                               initialValue: (tree != null) ? tree.family : '',
                               decoration: InputDecoration(
-                                labelText: 'Familia',
+                                labelText: appLocalizations.family,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
                               validator: (String? value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Familia vacía';
+                                  return appLocalizations.enterFamily;
                                 }
                                 return null;
                               },
@@ -294,15 +303,15 @@ void treeDialog(BuildContext context, String title, Repository repository,
                                   ? tree.quantityBsAs.toString()
                                   : '',
                               decoration: InputDecoration(
-                                labelText: 'Cantidad en CABA',
+                                labelText: appLocalizations.quantityCABA,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
                               validator: (String? value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Cantidad vacía';
+                                  return appLocalizations.enterQuantity;
                                 } else if (int.tryParse(value) == null) {
-                                  return 'Debe ser un número';
+                                  return appLocalizations.mustBeNumber;
                                 }
                                 return null;
                               },
@@ -317,7 +326,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
                   ),
                 ),
                 TextButton.icon(
-                  label: const Text('Agregar fotos'),
+                  label: Text(appLocalizations.addImages),
                   icon: const Icon(Icons.add_a_photo_outlined),
                   onPressed: () async {
                     pickedImages = await imgPicker.pickMultiImage(limit: 10);
@@ -330,7 +339,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
                         onPressed: () {
                           context.pop();
                         },
-                        child: const Text('Cancelar')),
+                        child: Text(appLocalizations.cancel)),
                     FilledButton(
                         onPressed: () async {
                           final isValid = formKey.currentState!.validate();
@@ -350,7 +359,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
 
                               if (context.mounted) {
                                 showSnackbar(
-                                    context, 'Árbol agregado correctamente');
+                                    context, appLocalizations.treeAdded);
                               }
                             } else {
                               treeId = tree.id!;
@@ -366,7 +375,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
                               globalFlagRefreshList = true;
                               if (context.mounted) {
                                 showSnackbar(
-                                    context, 'Árbol editado correctamente');
+                                    context, appLocalizations.treeEdited);
                               }
                             }
 
@@ -389,7 +398,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
                             if (context.mounted) context.pop();
                           }
                         },
-                        child: const Text('Aceptar')),
+                        child: Text(appLocalizations.accept)),
                   ],
                 )
               ],
@@ -415,7 +424,7 @@ void userDialog(BuildContext context, String title, Repository repository,
   if (user != null) {
     selectedGender = user.gender;
   } else {
-    selectedGender = Gender.Otro;
+    selectedGender = Gender.other;
   }
 
   showDialog(
@@ -423,6 +432,7 @@ void userDialog(BuildContext context, String title, Repository repository,
       context: context,
       builder: (context) {
         final textStyle = Theme.of(context).textTheme;
+        final appLocalizations = AppLocalizations.of(context)!;
         return Dialog(
             insetPadding:
                 const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
@@ -447,14 +457,14 @@ void userDialog(BuildContext context, String title, Repository repository,
                                 TextFormField(
                                   initialValue: (user != null) ? user.name : '',
                                   decoration: InputDecoration(
-                                    labelText: 'Nombre',
+                                    labelText: appLocalizations.name,
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                   ),
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Nombre vacío';
+                                      return appLocalizations.enterName;
                                     }
                                     return null;
                                   },
@@ -465,14 +475,14 @@ void userDialog(BuildContext context, String title, Repository repository,
                                   initialValue:
                                       (user != null) ? user.email : '',
                                   decoration: InputDecoration(
-                                    labelText: 'Email',
+                                    labelText: appLocalizations.email,
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                   ),
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Email vacío';
+                                      return appLocalizations.enterEmail;
                                     }
                                     return null;
                                   },
@@ -484,7 +494,7 @@ void userDialog(BuildContext context, String title, Repository repository,
                                       (user != null) ? user.password : '',
                                   obscureText: _isObscure,
                                   decoration: InputDecoration(
-                                    labelText: 'Contraseña',
+                                    labelText: appLocalizations.password,
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -498,7 +508,7 @@ void userDialog(BuildContext context, String title, Repository repository,
                                   ),
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Contraseña vacía';
+                                      return appLocalizations.enterPassword;
                                     }
                                     return null;
                                   },
@@ -509,15 +519,17 @@ void userDialog(BuildContext context, String title, Repository repository,
                                   initialValue:
                                       (user != null) ? user.age.toString() : '',
                                   decoration: InputDecoration(
-                                    labelText: 'Edad',
+                                    labelText: appLocalizations.age,
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                   ),
                                   validator: (String? value) {
-                                    if (value != null) {
+                                    if (value == null || value.isEmpty) {
+                                      return appLocalizations.enterAge;
+                                    } else {
                                       if (int.tryParse(value) == null) {
-                                        return 'Debe ser un número';
+                                        return appLocalizations.mustBeNumber;
                                       }
                                     }
                                     return null;
@@ -528,38 +540,44 @@ void userDialog(BuildContext context, String title, Repository repository,
                                 ),
                                 const SizedBox(height: 15),
                                 ExpansionTile(
-                                  title: const Text('Género'),
-                                  subtitle: Text(selectedGender.name),
+                                  title: Text(appLocalizations.gender),
+                                  subtitle: switch (selectedGender) {
+                                    Gender.male => Text(appLocalizations.male),
+                                    Gender.female =>
+                                      Text(appLocalizations.female),
+                                    Gender.other =>
+                                      Text(appLocalizations.other),
+                                  },
                                   children: [
                                     RadioListTile(
-                                      value: Gender.Masculino,
+                                      value: Gender.male,
                                       groupValue: selectedGender,
                                       onChanged: (value) {
                                         setState(() {
                                           selectedGender = value as Gender;
                                         });
                                       },
-                                      title: const Text('Masculino'),
+                                      title: Text(appLocalizations.male),
                                     ),
                                     RadioListTile(
-                                      value: Gender.Femenino,
+                                      value: Gender.female,
                                       groupValue: selectedGender,
                                       onChanged: (value) {
                                         setState(() {
                                           selectedGender = value as Gender;
                                         });
                                       },
-                                      title: const Text('Femenino'),
+                                      title: Text(appLocalizations.female),
                                     ),
                                     RadioListTile(
-                                      value: Gender.Otro,
+                                      value: Gender.other,
                                       groupValue: selectedGender,
                                       onChanged: (value) {
                                         setState(() {
                                           selectedGender = value as Gender;
                                         });
                                       },
-                                      title: const Text('Otro'),
+                                      title: Text(appLocalizations.other),
                                     ),
                                   ],
                                 ),
@@ -577,7 +595,7 @@ void userDialog(BuildContext context, String title, Repository repository,
                           onPressed: () {
                             context.pop();
                           },
-                          child: const Text('Cancelar')),
+                          child: Text(appLocalizations.cancel)),
                       FilledButton(
                           onPressed: () async {
                             final isValid = formKey.currentState!.validate();
@@ -613,14 +631,15 @@ void userDialog(BuildContext context, String title, Repository repository,
                                 );
                                 globalFlagRefreshList = true;
                                 if (context.mounted) {
-                                  showSnackbar(context, 'Usuario editado');
+                                  showSnackbar(
+                                      context, appLocalizations.userEdited);
                                   context.pop();
                                 }
                                 if (refreshUser != null) refreshUser();
                               }
                             }
                           },
-                          child: const Text('Aceptar')),
+                          child: Text(appLocalizations.accept)),
                     ],
                   )
                 ],

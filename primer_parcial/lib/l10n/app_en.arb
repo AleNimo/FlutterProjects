@@ -1,0 +1,74 @@
+{
+    "login": "Login",
+    "user": "User",
+    "enterUser": "Enter user",
+    "invalidUser": "User doesn't exist",
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "invalidPassword": "Incorrect password",
+    "notHaveAccount": "Don't have an account?",
+    "register": "Register",
+    "createAccount": "Create an account",
+    
+    "welcome": "Welcome",
+    "noTrees": "No trees to show",
+    "newTree": "New tree",
+    "menu": "Menu",
+    "treesCABA": "Trees in Buenos Aires city:",
+
+    "userProfile": "User Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+
+    "name": "Name",
+    "email": "Email", 
+    "enterEmail": "Enter email",
+    "age": "Age",
+    "enterAge": "Enter age",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+
+    "editUser": "Edit User",
+    "userEdited": "User edited",
+
+    "theme": "Theme",
+    "darkMode": "Dark mode",
+    "language": "Language",
+
+    "detail": "Detail of the Tree",
+    "editTree": "Edit tree",
+
+    "sureDeleteTree": "Are you sure you want to delete this tree?",
+    "sureDeleteUser": "Are you sure you want to delete your account?",
+    "sureDeleteImage": "Are you sure you want to delete this image?",
+
+    "permanentAction": "This action can't be undone.",
+    "treeDeleted": "Tree deleted",
+    "imageDeleted": "Image deleted",
+
+    "selectTheme": "Select theme",
+
+    "edit": "Edit",
+    "gallery": "Gallery",
+    "camera": "Camera",
+
+    "commonName": "Common name",
+    "enterName": "Enter a name",
+    "scientificName": "Scientific name",
+    "enterScientificName": "Enter a scientific name",
+    "family": "Family",
+    "enterFamily": "Enter a family",
+    "quantityCABA": "Estimated quantity in CABA",
+    "enterQuantity": "Enter a quantity",
+    "mustBeNumber": "It must be a number",
+
+    "addImages": "Add images",
+    "treeAdded": "Tree added",
+    "treeEdited": "Tree edited",
+
+    "accept": "Accept",
+    "delete": "Delete",
+    "cancel": "Cancel"
+}

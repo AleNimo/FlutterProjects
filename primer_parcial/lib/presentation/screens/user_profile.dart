@@ -3,6 +3,8 @@ import 'package:primer_parcial/domain/models/dialogs.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class UserProfile extends StatefulWidget {
   const UserProfile(
       {super.key, required this.userId, required this.repository});
@@ -32,19 +34,20 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return FutureBuilder(
       future: userRequest,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            color: const Color.fromARGB(255, 252, 248, 255),
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
           final User user = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Perfil de Usuario'),
+              title: Text(appLocalizations.userProfile),
             ),
             body: Padding(
               padding: const EdgeInsets.all(20),
@@ -60,10 +63,10 @@ class _UserProfileState extends State<UserProfile> {
                           Icons.person,
                           size: 200,
                         ),
-                        Text('Nombre: ${user.name}'),
-                        Text('Email: ${user.email}'),
-                        Text('Edad: ${user.age}'),
-                        Text('Género: ${user.gender.name}'),
+                        Text('${appLocalizations.name}: ${user.name}'),
+                        Text('${appLocalizations.email}: ${user.email}'),
+                        Text('${appLocalizations.age}: ${user.age}'),
+                        Text('${appLocalizations.gender}: ${user.gender.name}'),
                       ],
                     ),
                   ),
@@ -74,7 +77,7 @@ class _UserProfileState extends State<UserProfile> {
                         deleteUserDialog(context, widget.repository, user);
                       },
                       icon: const Icon(Icons.delete),
-                      label: const Text('Eliminar'),
+                      label: Text(appLocalizations.delete),
                     ),
                   ),
                 ],
@@ -82,8 +85,8 @@ class _UserProfileState extends State<UserProfile> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                userDialog(context, 'Editar Usuario', widget.repository, user,
-                    refreshUser);
+                userDialog(context, appLocalizations.editUser,
+                    widget.repository, user, refreshUser);
               },
               child: const Icon(Icons.edit),
             ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:primer_parcial/core/language/language.dart';
 import 'package:primer_parcial/domain/models/dialogs.dart';
+import 'package:primer_parcial/presentation/providers/language_provider.dart';
 import 'package:primer_parcial/presentation/providers/theme_provider.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Configuration extends ConsumerWidget {
   const Configuration({super.key});
@@ -11,17 +15,21 @@ class Configuration extends ConsumerWidget {
     bool isDarkMode = ref.watch(themeNotifierProvider).isDarkMode;
     Color selectedColor = ref.watch(themeNotifierProvider).selectedColor;
 
+    final selectedLanguage = ref.watch(languageProvider);
+
     final textStyle = Theme.of(context).textTheme;
+
+    final appLocalizations = AppLocalizations.of(context)!;
 
     return Scaffold(
         appBar: AppBar(
-          title: const Row(
+          title: Row(
             children: [
-              Padding(
+              const Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                 child: Icon(Icons.settings),
               ),
-              Text('Configuración'),
+              Text(appLocalizations.settings),
             ],
           ),
         ),
@@ -29,7 +37,7 @@ class Configuration extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.color_lens),
-              title: Text('Tema', style: textStyle.headlineMedium),
+              title: Text(appLocalizations.theme, style: textStyle.titleLarge),
               trailing: Container(
                   constraints:
                       const BoxConstraints(maxHeight: 20, maxWidth: 20),
@@ -43,12 +51,13 @@ class Configuration extends ConsumerWidget {
                 }
               },
             ),
+            const Divider(),
             SwitchListTile(
               title: Row(
                 children: [
-                  const Icon(Icons.brightness_4),
+                  const Icon(Icons.dark_mode),
                   const SizedBox(width: 15),
-                  Text('Modo oscuro', style: textStyle.headlineMedium),
+                  Text(appLocalizations.darkMode, style: textStyle.titleLarge),
                 ],
               ),
               value: isDarkMode,
@@ -56,7 +65,24 @@ class Configuration extends ConsumerWidget {
                 ref.read(themeNotifierProvider.notifier).toggleDarkMode();
               },
             ),
-            const Text('Idioma', style: TextStyle(fontSize: 100)),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.translate),
+              title:
+                  Text(appLocalizations.language, style: textStyle.titleLarge),
+              trailing: PopupMenuButton<Language>(
+                onSelected: (language) =>
+                    ref.read(languageRepositoryProvider).setLanguage(language),
+                itemBuilder: (context) => [
+                  for (var language in Language.values)
+                    PopupMenuItem(
+                      value: language,
+                      child: Text(language.name),
+                    ),
+                ],
+                child: Text(selectedLanguage.name, style: textStyle.titleSmall),
+              ),
+            ),
           ],
         ));
   }

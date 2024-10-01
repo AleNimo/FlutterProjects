@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 import 'package:primer_parcial/core/database/type_converter.dart';
 
-enum Gender { Masculino, Femenino, Otro }
+enum Gender { male, female, other }
 
 @entity
 @TypeConverters([GenderConverter])
@@ -35,7 +35,7 @@ class User {
     required this.email,
     required this.password,
     this.age,
-    this.gender = Gender.Otro,
+    this.gender = Gender.other,
   });
 
   User copyWith({

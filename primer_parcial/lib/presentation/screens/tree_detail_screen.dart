@@ -7,6 +7,8 @@ import 'package:primer_parcial/domain/models/dialogs.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
 import 'package:primer_parcial/main.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class TreeDetailScreen extends StatefulWidget {
   const TreeDetailScreen(
       {super.key, required this.treeId, required this.repository});
@@ -36,25 +38,26 @@ class _TreeDetailScreenState extends State<TreeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return FutureBuilder(
       future: treeRequest,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            color: const Color.fromARGB(255, 252, 248, 255),
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
           return Scaffold(
               appBar: AppBar(
-                title: const Text('Detalle'),
+                title: Text(appLocalizations.detail),
               ),
               body: _TreeDetailView(
                   repository: widget.repository, tree: snapshot.data!),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  treeDialog(context, "Editar árbol", widget.repository,
-                      snapshot.data!, refreshTree);
+                  treeDialog(context, appLocalizations.editTree,
+                      widget.repository, snapshot.data!, refreshTree);
                 },
                 child: const Icon(Icons.edit),
               ));
@@ -78,6 +81,7 @@ class _TreeDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme;
+    final appLocalizations = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -100,10 +104,11 @@ class _TreeDetailView extends StatelessWidget {
               style: textStyle.titleMedium,
             ),
             Text(
-              'Familia: ${tree.family}',
+              '${appLocalizations.family}: ${tree.family}',
               style: textStyle.titleMedium,
             ),
-            Text('Cantidad estimada en CABA: ${tree.quantityBsAs.toString()}',
+            Text(
+                '${appLocalizations.quantityCABA}: ${tree.quantityBsAs.toString()}',
                 style: textStyle.titleMedium),
           ],
         ),
@@ -114,7 +119,7 @@ class _TreeDetailView extends StatelessWidget {
               deleteTreeDialog(context, repository, tree);
             },
             icon: const Icon(Icons.delete),
-            label: const Text('Eliminar'),
+            label: Text(appLocalizations.delete),
           ),
         ),
       ]),

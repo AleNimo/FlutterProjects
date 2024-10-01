@@ -7,6 +7,8 @@ import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key, required this.repository});
 
@@ -40,9 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(appLocalizations.login),
       ),
       body: FutureBuilder(
         future: widget.repository.getUsers(),
@@ -93,6 +96,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return Column(
       children: [
         Image.asset(
@@ -111,18 +115,18 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                 TextFormField(
                   key: userKey,
                   decoration: InputDecoration(
-                    labelText: 'Usuario',
+                    labelText: appLocalizations.user,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),
                   validator: (String? inputUser) {
                     if (inputUser == null || inputUser.isEmpty) {
-                      return 'Ingresar usuario';
+                      return appLocalizations.enterUser;
                     } else {
                       matchedUser = widget.users
                           .firstWhereOrNull((user) => user.name == inputUser);
                       if (matchedUser == null) {
-                        return 'Usuario inválido';
+                        return appLocalizations.invalidUser;
                       }
                     }
                     return null;
@@ -133,7 +137,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                 TextFormField(
                   obscureText: _isObscure,
                   decoration: InputDecoration(
-                    labelText: 'Contraseña',
+                    labelText: appLocalizations.password,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     suffixIcon: IconButton(
@@ -144,13 +148,13 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   ),
                   validator: (String? inputPassword) {
                     if (inputPassword == null || inputPassword.isEmpty) {
-                      return 'Ingresar contraseña';
+                      return appLocalizations.enterPassword;
                     } else {
                       final validUser = userKey.currentState!.validate();
 
                       if (validUser) {
                         if (matchedUser!.password != inputPassword) {
-                          return 'Contraseña incorrecta';
+                          return appLocalizations.invalidPassword;
                         }
                       }
                     }
@@ -174,18 +178,18 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                       }
                     }
                   },
-                  child: const Text('Login'),
+                  child: Text(appLocalizations.login),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('¿No tenés una cuenta?'),
+                    Text(appLocalizations.notHaveAccount),
                     TextButton(
                         onPressed: () {
-                          userDialog(context, 'Registrarse', widget.repository,
-                              null, null);
+                          userDialog(context, appLocalizations.register,
+                              widget.repository, null, null);
                         },
-                        child: const Text('Registrarse'))
+                        child: Text(appLocalizations.register))
                   ],
                 )
               ],

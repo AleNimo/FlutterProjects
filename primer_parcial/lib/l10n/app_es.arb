@@ -1,0 +1,74 @@
+{
+    "login": "Iniciar sesión",
+    "user": "Usuario",
+    "enterUser": "Ingresar usuario",
+    "invalidUser": "El usuario no existe",
+    "password": "Contraseña",
+    "enterPassword": "Ingresar contraseña",
+    "invalidPassword": "Contraseña incorrecta",
+    "notHaveAccount": "¿No tenés una cuenta?",
+    "register": "Registrarse",
+    "createAccount": "Crear una cuenta",
+
+    "welcome": "Bienvenid",
+    "noTrees": "Sin árboles para mostrar",
+    "newTree": "Nuevo árbol",
+    "menu": "Menú",
+    "treesCABA": "Árboles en la Ciudad de Buenos Aires:",
+
+    "userProfile": "Perfil de Usuario",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+
+    "name": "Nombre",
+    "email": "Email",
+    "enterEmail": "Ingresar email",
+    "age": "Edad",
+    "enterAge": "Ingresar edad",
+    "gender": "Género",
+    "male": "Masculino",
+    "female": "Femenino",
+    "other": "Otro",
+
+    "editUser": "Editar Usuario",
+    "userEdited": "Usuario editado",
+
+    "theme": "Tema",
+    "darkMode": "Modo oscuro",
+    "language": "Idioma",
+
+    "detail": "Detalle del Árbol",
+    "editTree": "Editar árbol",
+
+    "sureDeleteTree": "¿Seguro que desea eliminar este árbol?",
+    "sureDeleteUser": "¿Seguro que desea eliminar su cuenta?",
+    "sureDeleteImage": "¿Seguro que desea eliminar esta foto?",
+    
+    "permanentAction": "Esta acción es permanente.",
+    "treeDeleted": "Árbol eliminado",
+    "imageDeleted": "Foto eliminada",
+
+    "selectTheme": "Seleccionar tema",
+    
+    "edit": "Editar",
+    "gallery": "Galería",
+    "camera": "Cámara",
+
+    "commonName": "Nombre informal",
+    "enterName": "Ingresar Nombre",
+    "scientificName": "Nombre científico",
+    "enterScientificName": "Ingresar nombre científico",
+    "family": "Familia",
+    "enterFamily": "Ingresar familia",
+    "quantityCABA": "Cantidad estimada en CABA",
+    "enterQuantity": "Ingresar cantidad",
+    "mustBeNumber": "Debe ser un número",
+
+    "addImages": "Agregar fotos",
+    "treeAdded": "Árbol agregado",
+    "treeEdited": "Árbol editado",
+
+    "accept": "Aceptar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar"
+}

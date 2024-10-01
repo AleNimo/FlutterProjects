@@ -5,14 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:primer_parcial/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:primer_parcial/core/menu/menu_items.dart';
+import 'package:primer_parcial/domain/models/menu_items.dart';
 
 import 'package:primer_parcial/domain/models/tree.dart';
 import 'package:primer_parcial/domain/models/user.dart';
-
 import 'package:primer_parcial/domain/models/dialogs.dart';
 
 import 'package:primer_parcial/domain/repositories/repository.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TreesScreen extends StatefulWidget {
   const TreesScreen(
@@ -52,43 +53,50 @@ class _TreesScreenState extends State<TreesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return FutureBuilder(
       future: Future.wait([userRequest, treesRequest]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            color: const Color.fromARGB(255, 252, 248, 255),
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
           User user = snapshot.data![0]! as User;
           List<Tree> trees = snapshot.data![1] as List<Tree>;
 
-          String welcomeText = '';
+          String endingChar = '';
 
-          if (user.gender == Gender.Masculino) {
-            welcomeText = 'Bienvenido, ${user.name}';
-          } else if (user.gender == Gender.Femenino) {
-            welcomeText = 'Bienvenida, ${user.name}';
-          } else {
-            welcomeText = 'Bienvenid@, ${user.name}';
+          if (appLocalizations.localeName == 'es') {
+            switch (user.gender) {
+              case Gender.male:
+                endingChar = 'o';
+                break;
+              case Gender.female:
+                endingChar = 'a';
+                break;
+              default:
+                endingChar = '@';
+            }
           }
 
           return Scaffold(
             key: scaffoldKey,
             appBar: AppBar(
-              title: Text(welcomeText),
+              title:
+                  Text('${appLocalizations.welcome}$endingChar, ${user.name}'),
             ),
             body: (trees.isEmpty)
-                ? const Center(child: Text('Sin árboles para mostrar'))
+                ? Center(child: Text(appLocalizations.noTrees))
                 : _TreesView(
                     treeList: trees,
                     onRefresh: () async => refreshList(),
                   ),
             floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  treeDialog(context, 'Nuevo árbol', widget.repository, null,
-                      refreshList);
+                  treeDialog(context, appLocalizations.newTree,
+                      widget.repository, null, refreshList);
                 },
                 child: const Icon(Icons.add)),
             drawer: MenuDrawer(
@@ -126,6 +134,24 @@ class MenuDrawer extends StatefulWidget {
 class _MenuDrawerState extends State<MenuDrawer> {
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
+    List<MenuItem> menuItems = [
+      MenuItem(
+        title: appLocalizations.userProfile,
+        icon: Icons.person,
+        link: '/userProfile',
+      ),
+      MenuItem(
+        title: appLocalizations.settings,
+        icon: Icons.settings,
+        link: '/configuration',
+      ),
+      MenuItem(
+        title: appLocalizations.logout,
+        icon: Icons.logout,
+        link: '/login', //(vuelve a pantalla de login)
+      ),
+    ];
     return NavigationDrawer(
       onDestinationSelected: (value) async {
         switch (value) {
@@ -149,7 +175,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(28, 10, 28, 5),
-          child: Text('Menu', style: Theme.of(context).textTheme.titleLarge),
+          child: Text(appLocalizations.menu,
+              style: Theme.of(context).textTheme.titleLarge),
         ),
         ...menuItems.map((item) => NavigationDrawerDestination(
               icon: Icon(item.icon),
@@ -169,6 +196,7 @@ class _TreesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     final textStyle = Theme.of(context).textTheme;
     return Column(
       children: [
@@ -176,8 +204,8 @@ class _TreesView extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('Árboles en la Ciudad de Buenos Aires:',
-                  style: textStyle.titleLarge),
+              child:
+                  Text(appLocalizations.treesCABA, style: textStyle.titleLarge),
             )),
         Expanded(
           child: RefreshIndicator(
