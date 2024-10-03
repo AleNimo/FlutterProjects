@@ -21,15 +21,19 @@
     "logout": "Cerrar sesión",
 
     "name": "Nombre",
+    "validating": "Validando",
+    "alreadyExists": "El usuario ya existe",
     "email": "Email",
     "enterEmail": "Ingresar email",
     "age": "Edad",
+    "years": "años",
     "enterAge": "Ingresar edad",
     "gender": "Género",
     "male": "Masculino",
     "female": "Femenino",
     "other": "Otro",
 
+    "deleteUser": "Eliminar Usuario",
     "editUser": "Editar Usuario",
     "userEdited": "Usuario editado",
 

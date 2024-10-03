@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:primer_parcial/domain/models/dialogs.dart';
 import 'package:primer_parcial/domain/models/user.dart';
 import 'package:primer_parcial/domain/repositories/repository.dart';
@@ -35,6 +36,7 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
+    final textStyle = Theme.of(context).textTheme;
     return FutureBuilder(
       future: userRequest,
       builder: (context, snapshot) {
@@ -57,16 +59,71 @@ class _UserProfileState extends State<UserProfile> {
                     alignment: Alignment.topCenter,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.person,
-                          size: 200,
+                        SizedBox(
+                          height: 150,
+                          width: 150,
+                          child: ClipOval(
+                            child: Container(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              child: Center(
+                                  child: Text(
+                                user.name[0],
+                                style: textStyle.displayLarge,
+                              )),
+                            ),
+                          ),
                         ),
-                        Text('${appLocalizations.name}: ${user.name}'),
-                        Text('${appLocalizations.email}: ${user.email}'),
-                        Text('${appLocalizations.age}: ${user.age}'),
-                        Text('${appLocalizations.gender}: ${user.gender.name}'),
+                        const SizedBox(height: 40),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.person),
+                                const SizedBox(width: 10),
+                                Text(user.name, style: textStyle.headlineSmall),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              children: [
+                                const Icon(Icons.email),
+                                const SizedBox(width: 10),
+                                Text(user.email,
+                                    style: textStyle.headlineSmall),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_month),
+                                const SizedBox(width: 10),
+                                Text('${user.age} ${appLocalizations.years}',
+                                    style: textStyle.headlineSmall),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              children: [
+                                Icon(switch (user.gender) {
+                                  Gender.male => Icons.male,
+                                  Gender.female => Icons.female,
+                                  Gender.other => FontAwesomeIcons.genderless,
+                                }),
+                                const SizedBox(width: 10),
+                                Text(
+                                    '${appLocalizations.gender}: ${switch (user.gender) {
+                                      Gender.male => appLocalizations.male,
+                                      Gender.female => appLocalizations.female,
+                                      Gender.other => appLocalizations.other,
+                                    }}',
+                                    style: textStyle.headlineSmall),
+                              ],
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -76,8 +133,8 @@ class _UserProfileState extends State<UserProfile> {
                       onPressed: () {
                         deleteUserDialog(context, widget.repository, user);
                       },
-                      icon: const Icon(Icons.delete),
-                      label: Text(appLocalizations.delete),
+                      icon: const Icon(Icons.person_off),
+                      label: Text(appLocalizations.deleteUser),
                     ),
                   ),
                 ],

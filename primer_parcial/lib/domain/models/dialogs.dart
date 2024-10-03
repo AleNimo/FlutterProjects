@@ -537,7 +537,7 @@ void userDialog({
                                       }
                                       if (value == lastUserValidated) {
                                         if (isUserTaken) {
-                                          return 'User already exists';
+                                          return appLocalizations.alreadyExists;
                                         }
                                       } else {
                                         if (userToEdit != null) {
@@ -546,7 +546,7 @@ void userDialog({
                                           }
                                         }
                                         initAsyncNameValidation(value);
-                                        return 'Validating';
+                                        return appLocalizations.validating;
                                       }
 
                                       return null;

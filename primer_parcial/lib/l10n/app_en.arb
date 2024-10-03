@@ -21,15 +21,19 @@
     "logout": "Logout",
 
     "name": "Name",
+    "validating": "Validating",
+    "alreadyExists": "User already exists",
     "email": "Email", 
     "enterEmail": "Enter email",
     "age": "Age",
+    "years": "years old",
     "enterAge": "Enter age",
     "gender": "Gender",
     "male": "Male",
     "female": "Female",
     "other": "Other",
 
+    "deleteUser": "Delete User",
     "editUser": "Edit User",
     "userEdited": "User edited",
 
