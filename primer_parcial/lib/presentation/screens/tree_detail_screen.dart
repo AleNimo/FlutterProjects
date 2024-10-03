@@ -99,17 +99,37 @@ class _TreeDetailView extends StatelessWidget {
               textAlign: TextAlign.left,
             ),
             const SizedBox(height: 10),
-            Text(
-              tree.scientificName,
-              style: textStyle.titleMedium,
+            Row(
+              children: [
+                const Icon(Icons.science_outlined),
+                const SizedBox(width: 10),
+                Text(
+                  tree.scientificName,
+                  style: textStyle.titleMedium,
+                ),
+              ],
             ),
-            Text(
-              '${appLocalizations.family}: ${tree.family}',
-              style: textStyle.titleMedium,
+            const Divider(),
+            Row(
+              children: [
+                const Icon(Icons.group_work_outlined),
+                const SizedBox(width: 10),
+                Text(
+                  '${appLocalizations.family}: ${tree.family}',
+                  style: textStyle.titleMedium,
+                ),
+              ],
             ),
-            Text(
-                '${appLocalizations.quantityCABA}: ${tree.quantityBsAs.toString()}',
-                style: textStyle.titleMedium),
+            const Divider(),
+            Row(
+              children: [
+                const Icon(Icons.insert_chart_outlined_outlined),
+                const SizedBox(width: 10),
+                Text(
+                    '${appLocalizations.quantityCABA}: ${tree.quantityBsAs.toString()}',
+                    style: textStyle.titleMedium),
+              ],
+            ),
           ],
         ),
         Align(
@@ -151,7 +171,7 @@ class _SlidesState extends State<Slides> {
 
   Future<List<File>> readImages() async {
     final Directory imagesDir =
-        Directory('${userDocsDirectory.path}/images/${widget.tree.id}');
+        Directory('${userDocsDirectory.path}/images/trees/${widget.tree.id}');
 
     if (imagesDir.existsSync()) {
       final List<FileSystemEntity> entities = await imagesDir.list().toList();
@@ -193,8 +213,13 @@ class _SlidesState extends State<Slides> {
                 children: snapshot.data!.map((imageFile) {
                   return GestureDetector(
                     onLongPress: () {
-                      imageDialog(context, imageFile.path, refreshImage,
-                          refreshImagesList);
+                      imageDialog(
+                        context: context,
+                        path: imageFile.path,
+                        pathIsFile: true,
+                        refreshImage: refreshImage,
+                        refreshImagesList: refreshImagesList,
+                      );
                     },
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),

@@ -68,7 +68,7 @@ abstract class AppDatabase extends FloorDatabase {
   }
 
   static _saveAssetsInDevice() async {
-    final String imagesPath = '${userDocsDirectory.path}/images';
+    final String imagesPath = '${userDocsDirectory.path}/images/trees';
 
     final Directory imagesDir = Directory(imagesPath);
     if (!imagesDir.existsSync()) {

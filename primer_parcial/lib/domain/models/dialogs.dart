@@ -34,7 +34,7 @@ void deleteTreeDialog(BuildContext context, Repository repository, Tree tree) {
                     await repository.deleteTree(tree);
 
                     final Directory imagesDir = Directory(
-                        '${userDocsDirectory.path}/images/${tree.id}');
+                        '${userDocsDirectory.path}/images/trees/${tree.id}');
 
                     imagesDir.deleteSync(recursive: true);
 
@@ -69,6 +69,11 @@ void deleteUserDialog(BuildContext context, Repository repository, User user) {
               FilledButton(
                   onPressed: () async {
                     await repository.deleteUser(user);
+
+                    final Directory imagesDir = Directory(
+                        '${userDocsDirectory.path}/images/users/${user.id}');
+
+                    imagesDir.deleteSync(recursive: true);
 
                     if (context.mounted) {
                       await asyncPrefs.remove('activeUserId');
@@ -136,8 +141,13 @@ Future<Color?> colorDialog(BuildContext context, Color currentColor) async {
   );
 }
 
-void imageDialog(BuildContext context, String imagePath, Function refreshImage,
-    Function refreshImagesList) {
+void imageDialog({
+  required BuildContext context,
+  required String path,
+  required bool pathIsFile,
+  required Function refreshImage,
+  Function? refreshImagesList,
+}) {
   final ImagePicker imgPicker = ImagePicker();
   final appLocalizations = AppLocalizations.of(context)!;
 
@@ -167,7 +177,11 @@ void imageDialog(BuildContext context, String imagePath, Function refreshImage,
                       await imgPicker.pickImage(source: ImageSource.gallery);
                   if (xImage != null) {
                     File newImage = File(xImage.path);
-                    newImage.copy(imagePath);
+
+                    pathIsFile
+                        ? newImage.copy(path)
+                        : newImage.copy('$path/profile.jpg');
+
                     refreshImage();
                   }
 
@@ -182,26 +196,32 @@ void imageDialog(BuildContext context, String imagePath, Function refreshImage,
                       await imgPicker.pickImage(source: ImageSource.camera);
                   if (xImage != null) {
                     File newImage = File(xImage.path);
-                    newImage.copy(imagePath);
+                    pathIsFile
+                        ? newImage.copy(path)
+                        : newImage.copy('$path/profile.jpg');
                     refreshImage();
                   }
 
                   if (context.mounted) context.pop();
                 },
               ),
-              const Divider(),
-              TextButton.icon(
-                icon: const Icon(Icons.hide_image_outlined),
-                label: Text(appLocalizations.delete),
-                onPressed: () async {
-                  if (await deleteImageDialog(context)) {
-                    File image = File(imagePath);
-                    image.delete();
-                    refreshImagesList();
-                  }
-                  if (context.mounted) context.pop();
-                },
-              ),
+              if (pathIsFile) ...[
+                const Divider(),
+                TextButton.icon(
+                  icon: const Icon(Icons.hide_image_outlined),
+                  label: Text(appLocalizations.delete),
+                  onPressed: () async {
+                    if (await deleteImageDialog(context)) {
+                      File image = File(path);
+                      image.delete();
+                      (refreshImagesList != null)
+                          ? refreshImagesList()
+                          : refreshImage();
+                    }
+                    if (context.mounted) context.pop();
+                  },
+                ),
+              ],
             ],
           ),
         ),
@@ -382,7 +402,7 @@ void treeDialog(BuildContext context, String title, Repository repository,
                             if (pickedImages != null) {
                               if (pickedImages!.isNotEmpty) {
                                 final Directory imagesDir = Directory(
-                                    '${userDocsDirectory.path}/images/$treeId');
+                                    '${userDocsDirectory.path}/images/trees/$treeId');
                                 if (!imagesDir.existsSync()) {
                                   imagesDir.createSync(recursive: true);
                                 }
@@ -426,7 +446,7 @@ void userDialog({
   int? inputAge = 0;
   Gender selectedGender;
 
-  bool _isObscure = true;
+  bool isObscure = true;
 
   if (userToEdit != null) {
     selectedGender = userToEdit.gender;
@@ -476,7 +496,7 @@ void userDialog({
           showSnackbar(context, appLocalizations.userEdited);
           context.pop();
         }
-        if (refreshFunction != null) refreshFunction();
+        refreshFunction?.call();
       }
     }
   }
@@ -577,23 +597,25 @@ void userDialog({
                                     initialValue: (userToEdit != null)
                                         ? userToEdit.password
                                         : '',
-                                    obscureText: _isObscure,
+                                    obscureText: isObscure,
                                     decoration: InputDecoration(
                                       labelText: appLocalizations.password,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(10)),
                                       suffixIcon: IconButton(
-                                        icon: Icon(_isObscure
+                                        icon: Icon(isObscure
                                             ? Icons.visibility
                                             : Icons.visibility_off),
                                         onPressed: () => setState(
-                                            () => _isObscure = !_isObscure),
+                                            () => isObscure = !isObscure),
                                       ),
                                     ),
                                     validator: (String? value) {
                                       if (value == null || value.isEmpty) {
                                         return appLocalizations.enterPassword;
+                                      } else if (value.length < 4) {
+                                        return appLocalizations.tooShort('4');
                                       }
                                       return null;
                                     },
@@ -657,15 +679,14 @@ void userDialog({
                                         title: Text(appLocalizations.female),
                                       ),
                                       RadioListTile(
-                                        value: Gender.other,
-                                        groupValue: selectedGender,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedGender = value as Gender;
-                                          });
-                                        },
-                                        title: Text(appLocalizations.other),
-                                      ),
+                                          value: Gender.other,
+                                          groupValue: selectedGender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedGender = value as Gender;
+                                            });
+                                          },
+                                          title: Text(appLocalizations.other)),
                                     ],
                                   ),
                                 ],

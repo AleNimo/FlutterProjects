@@ -153,6 +153,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
       ),
     ];
     return NavigationDrawer(
+      selectedIndex: null,
       onDestinationSelected: (value) async {
         switch (value) {
           case 0:
@@ -250,7 +251,7 @@ class _TreeItemState extends State<_TreeItem> {
 
   Future<File?> getImage() async {
     final Directory imagesDir =
-        Directory('${userDocsDirectory.path}/images/${widget.tree.id}');
+        Directory('${userDocsDirectory.path}/images/trees/${widget.tree.id}');
 
     if (imagesDir.existsSync()) {
       final List<FileSystemEntity> entities = await imagesDir.list().toList();
@@ -281,40 +282,45 @@ class _TreeItemState extends State<_TreeItem> {
       },
       child: Card(
         child: ListTile(
-          leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: FutureBuilder(
-                future: image,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: Center(child: CircularProgressIndicator()));
-                  } else if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  } else if (snapshot.hasData) {
-                    return Image.memory(
-                      snapshot.data!.readAsBytesSync(),
-                      errorBuilder: (context, error, stackTrace) {
-                        return const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: Center(
-                                child:
-                                    FaIcon(FontAwesomeIcons.tree, size: 20)));
-                      },
-                    );
-                  } else {
-                    //Sin datos
-                    return const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: Center(
-                            child: FaIcon(FontAwesomeIcons.tree, size: 20)));
-                  }
-                },
-              )),
+          visualDensity: const VisualDensity(vertical: 4),
+          leading: SizedBox(
+            width: 120,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: FutureBuilder(
+                  future: image,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Center(child: CircularProgressIndicator()));
+                    } else if (snapshot.hasError) {
+                      return Text(snapshot.error.toString());
+                    } else if (snapshot.hasData) {
+                      return Image.memory(
+                        fit: BoxFit.fitWidth,
+                        snapshot.data!.readAsBytesSync(),
+                        errorBuilder: (context, error, stackTrace) {
+                          return const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: Center(
+                                  child:
+                                      FaIcon(FontAwesomeIcons.tree, size: 20)));
+                        },
+                      );
+                    } else {
+                      //Sin datos
+                      return const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Center(
+                              child: FaIcon(FontAwesomeIcons.tree, size: 20)));
+                    }
+                  },
+                )),
+          ),
           title: Text(widget.tree.name),
           subtitle: Text(widget.tree.scientificName),
           trailing: const Icon(Icons.arrow_forward),

@@ -117,6 +117,7 @@ class LoginWidgets extends StatefulWidget {
 
 class _LoginWidgetsState extends State<LoginWidgets> {
   bool _isObscure = true;
+  bool rememberUser = false;
 
   String? userName;
   String? password;
@@ -135,97 +136,115 @@ class _LoginWidgetsState extends State<LoginWidgets> {
           height: 200,
           fit: BoxFit.contain,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                TextFormField(
-                  key: userKey,
-                  decoration: InputDecoration(
-                    labelText: appLocalizations.user,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  validator: (String? inputUser) {
-                    if (inputUser == null || inputUser.isEmpty) {
-                      return appLocalizations.enterUser;
-                    } else {
-                      matchedUser = widget.users
-                          .firstWhereOrNull((user) => user.name == inputUser);
-                      if (matchedUser == null) {
-                        return appLocalizations.invalidUser;
-                      }
-                    }
-                    return null;
-                  },
-                  onSaved: (inputUser) => userName = inputUser!,
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  obscureText: _isObscure,
-                  decoration: InputDecoration(
-                    labelText: appLocalizations.password,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                          _isObscure ? Icons.visibility : Icons.visibility_off),
-                      onPressed: () => setState(() => _isObscure = !_isObscure),
-                    ),
-                  ),
-                  validator: (String? inputPassword) {
-                    if (inputPassword == null || inputPassword.isEmpty) {
-                      return appLocalizations.enterPassword;
-                    } else {
-                      final validUser = userKey.currentState!.validate();
-
-                      if (validUser) {
-                        if (matchedUser!.password != inputPassword) {
-                          return appLocalizations.invalidPassword;
-                        }
-                      }
-                    }
-                    return null;
-                  },
-                  onSaved: (inputPassword) => password = inputPassword!,
-                ),
-                const SizedBox(height: 10),
-                OutlinedButton(
-                  onPressed: () async {
-                    final isValid = formKey.currentState!.validate();
-
-                    if (isValid) {
-                      formKey.currentState!.save();
-
-                      await widget.asyncPrefs
-                          .setInt('activeUserId', matchedUser!.id!);
-
-                      if (context.mounted) {
-                        context.go('/trees/${matchedUser!.id!}');
-                      }
-                    }
-                  },
-                  child: Text(appLocalizations.login),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(appLocalizations.notHaveAccount),
-                    TextButton(
-                        onPressed: () {
-                          userDialog(
-                            context: context,
-                            repository: widget.repository,
-                          );
-                        },
-                        child: Text(appLocalizations.register))
+                    TextFormField(
+                      key: userKey,
+                      decoration: InputDecoration(
+                        labelText: appLocalizations.user,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      validator: (String? inputUser) {
+                        if (inputUser == null || inputUser.isEmpty) {
+                          return appLocalizations.enterUser;
+                        } else {
+                          matchedUser = widget.users.firstWhereOrNull(
+                              (user) => user.name == inputUser);
+                          if (matchedUser == null) {
+                            return appLocalizations.invalidUser;
+                          }
+                        }
+                        return null;
+                      },
+                      onSaved: (inputUser) => userName = inputUser!,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      obscureText: _isObscure,
+                      decoration: InputDecoration(
+                        labelText: appLocalizations.password,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        suffixIcon: IconButton(
+                          icon: Icon(_isObscure
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                          onPressed: () =>
+                              setState(() => _isObscure = !_isObscure),
+                        ),
+                      ),
+                      validator: (String? inputPassword) {
+                        if (inputPassword == null || inputPassword.isEmpty) {
+                          return appLocalizations.enterPassword;
+                        } else {
+                          final validUser = userKey.currentState!.validate();
+
+                          if (validUser) {
+                            if (matchedUser!.password != inputPassword) {
+                              return appLocalizations.invalidPassword;
+                            }
+                          }
+                        }
+                        return null;
+                      },
+                      onSaved: (inputPassword) => password = inputPassword!,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(appLocalizations.rememberMe),
+                        Checkbox(
+                          value: rememberUser,
+                          onChanged: (value) =>
+                              setState(() => rememberUser = value!),
+                        ),
+                      ],
+                    ),
+                    OutlinedButton(
+                      onPressed: () async {
+                        final isValid = formKey.currentState!.validate();
+
+                        if (isValid) {
+                          formKey.currentState!.save();
+
+                          if (rememberUser) {
+                            await widget.asyncPrefs
+                                .setInt('activeUserId', matchedUser!.id!);
+                          }
+
+                          if (context.mounted) {
+                            context.go('/trees/${matchedUser!.id!}');
+                          }
+                        }
+                      },
+                      child: Text(appLocalizations.login),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(appLocalizations.notHaveAccount),
+                        TextButton(
+                            onPressed: () {
+                              userDialog(
+                                context: context,
+                                repository: widget.repository,
+                              );
+                            },
+                            child: Text(appLocalizations.register))
+                      ],
+                    )
                   ],
-                )
-              ],
+                ),
+              ),
             ),
           ),
         ),
