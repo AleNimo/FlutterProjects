@@ -540,6 +540,11 @@ void userDialog({
                                           return 'User already exists';
                                         }
                                       } else {
+                                        if (userToEdit != null) {
+                                          if (value == userToEdit.name) {
+                                            return null;
+                                          }
+                                        }
                                         initAsyncNameValidation(value);
                                         return 'Validating';
                                       }
