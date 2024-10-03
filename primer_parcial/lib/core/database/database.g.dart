@@ -288,6 +288,19 @@ class _$UserDao extends UserDao {
   }
 
   @override
+  Future<User?> findUserByName(String name) async {
+    return _queryAdapter.query('SELECT * FROM User WHERE name = ?1',
+        mapper: (Map<String, Object?> row) => User(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            email: row['email'] as String,
+            password: row['password'] as String,
+            age: row['age'] as int?,
+            gender: _genderConverter.decode(row['gender'] as int)),
+        arguments: [name]);
+  }
+
+  @override
   Future<int> insertUser(User user) {
     return _userInsertionAdapter.insertAndReturnId(
         user, OnConflictStrategy.abort);

@@ -20,6 +20,11 @@ class LocalRepository implements Repository {
   }
 
   @override
+  Future<User?> getUserByName(String name) {
+    return _userDao.findUserByName(name);
+  }
+
+  @override
   Future<int> insertUser(User user) {
     return _userDao.insertUser(user);
   }

@@ -409,10 +409,17 @@ void treeDialog(BuildContext context, String title, Repository repository,
 }
 
 // user es el usuario a editar, si user == null es porque se está creando un usuario
-void userDialog(BuildContext context, String title, Repository repository,
-    User? user, Function? refreshUser) {
+void userDialog({
+  required BuildContext context,
+  required Repository repository,
+  User? userToEdit,
+  Function? refreshFunction,
+}) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+  final appLocalizations = AppLocalizations.of(context)!;
+
+  String title;
   String inputName = '';
   String inputEmail = '';
   String inputPassword = '';
@@ -421,10 +428,68 @@ void userDialog(BuildContext context, String title, Repository repository,
 
   bool _isObscure = true;
 
-  if (user != null) {
-    selectedGender = user.gender;
+  if (userToEdit != null) {
+    selectedGender = userToEdit.gender;
+    title = appLocalizations.editUser;
   } else {
     selectedGender = Gender.other;
+    title = appLocalizations.register;
+  }
+
+  bool isUserTaken = false;
+  String lastUserValidated = '';
+
+  Future<void> checkForm() async {
+    final isValid = formKey.currentState!.validate();
+
+    if (isValid) {
+      formKey.currentState!.save();
+
+      if (userToEdit == null) {
+        int userId = await repository.insertUser(
+          User(
+            name: inputName,
+            email: inputEmail,
+            password: inputPassword,
+            age: inputAge,
+            gender: selectedGender,
+          ),
+        );
+
+        await asyncPrefs.setInt('activeUserId', userId);
+        if (context.mounted) {
+          context.go('/trees/$userId');
+        }
+      } else {
+        await repository.updateUser(
+          User(
+            id: userToEdit.id,
+            name: inputName,
+            email: inputEmail,
+            password: inputPassword,
+            age: inputAge,
+            gender: selectedGender,
+          ),
+        );
+        globalFlagRefreshList = true;
+        if (context.mounted) {
+          showSnackbar(context, appLocalizations.userEdited);
+          context.pop();
+        }
+        if (refreshFunction != null) refreshFunction();
+      }
+    }
+  }
+
+  Future<void> initAsyncNameValidation(String name) async {
+    if (await repository.getUserByName(name) == null) {
+      isUserTaken = false;
+    } else {
+      isUserTaken = true;
+    }
+    lastUserValidated = name;
+
+    checkForm();
   }
 
   showDialog(
@@ -432,218 +497,195 @@ void userDialog(BuildContext context, String title, Repository repository,
       context: context,
       builder: (context) {
         final textStyle = Theme.of(context).textTheme;
-        final appLocalizations = AppLocalizations.of(context)!;
-        return Dialog(
-            insetPadding:
-                const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-            child: Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: textStyle.headlineSmall),
-                  Flexible(
-                    child: StatefulBuilder(
-                      builder: (context, setState) => SingleChildScrollView(
-                        child: Form(
-                          key: formKey,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                TextFormField(
-                                  initialValue: (user != null) ? user.name : '',
-                                  decoration: InputDecoration(
-                                    labelText: appLocalizations.name,
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return appLocalizations.enterName;
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) => inputName = value!,
-                                ),
-                                const SizedBox(height: 15),
-                                TextFormField(
-                                  initialValue:
-                                      (user != null) ? user.email : '',
-                                  decoration: InputDecoration(
-                                    labelText: appLocalizations.email,
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return appLocalizations.enterEmail;
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) => inputEmail = value!,
-                                ),
-                                const SizedBox(height: 15),
-                                TextFormField(
-                                  initialValue:
-                                      (user != null) ? user.password : '',
-                                  obscureText: _isObscure,
-                                  decoration: InputDecoration(
-                                    labelText: appLocalizations.password,
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(_isObscure
-                                          ? Icons.visibility
-                                          : Icons.visibility_off),
-                                      onPressed: () => setState(
-                                          () => _isObscure = !_isObscure),
+
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Dialog(
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+              child: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: textStyle.headlineSmall),
+                    Flexible(
+                      child: StatefulBuilder(
+                        builder: (context, setState) => SingleChildScrollView(
+                          child: Form(
+                            key: formKey,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  TextFormField(
+                                    initialValue: (userToEdit != null)
+                                        ? userToEdit.name
+                                        : '',
+                                    decoration: InputDecoration(
+                                      labelText: appLocalizations.name,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
                                     ),
-                                  ),
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return appLocalizations.enterPassword;
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) => inputPassword = value!,
-                                ),
-                                const SizedBox(height: 15),
-                                TextFormField(
-                                  initialValue:
-                                      (user != null) ? user.age.toString() : '',
-                                  decoration: InputDecoration(
-                                    labelText: appLocalizations.age,
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                  validator: (String? value) {
-                                    if (value == null || value.isEmpty) {
-                                      return appLocalizations.enterAge;
-                                    } else {
-                                      if (int.tryParse(value) == null) {
-                                        return appLocalizations.mustBeNumber;
+                                    validator: (String? value) {
+                                      if (value == null || value.isEmpty) {
+                                        return appLocalizations.enterName;
                                       }
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) {
-                                    inputAge = int.tryParse(value ?? '');
-                                  },
-                                ),
-                                const SizedBox(height: 15),
-                                ExpansionTile(
-                                  title: Text(appLocalizations.gender),
-                                  subtitle: switch (selectedGender) {
-                                    Gender.male => Text(appLocalizations.male),
-                                    Gender.female =>
-                                      Text(appLocalizations.female),
-                                    Gender.other =>
-                                      Text(appLocalizations.other),
-                                  },
-                                  children: [
-                                    RadioListTile(
-                                      value: Gender.male,
-                                      groupValue: selectedGender,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value as Gender;
-                                        });
-                                      },
-                                      title: Text(appLocalizations.male),
+                                      if (value == lastUserValidated) {
+                                        if (isUserTaken) {
+                                          return 'User already exists';
+                                        }
+                                      } else {
+                                        initAsyncNameValidation(value);
+                                        return 'Validating';
+                                      }
+
+                                      return null;
+                                    },
+                                    onSaved: (value) => inputName = value!,
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextFormField(
+                                    initialValue: (userToEdit != null)
+                                        ? userToEdit.email
+                                        : '',
+                                    decoration: InputDecoration(
+                                      labelText: appLocalizations.email,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
                                     ),
-                                    RadioListTile(
-                                      value: Gender.female,
-                                      groupValue: selectedGender,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value as Gender;
-                                        });
-                                      },
-                                      title: Text(appLocalizations.female),
+                                    validator: (String? value) {
+                                      if (value == null || value.isEmpty) {
+                                        return appLocalizations.enterEmail;
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (value) => inputEmail = value!,
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextFormField(
+                                    initialValue: (userToEdit != null)
+                                        ? userToEdit.password
+                                        : '',
+                                    obscureText: _isObscure,
+                                    decoration: InputDecoration(
+                                      labelText: appLocalizations.password,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(_isObscure
+                                            ? Icons.visibility
+                                            : Icons.visibility_off),
+                                        onPressed: () => setState(
+                                            () => _isObscure = !_isObscure),
+                                      ),
                                     ),
-                                    RadioListTile(
-                                      value: Gender.other,
-                                      groupValue: selectedGender,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value as Gender;
-                                        });
-                                      },
-                                      title: Text(appLocalizations.other),
+                                    validator: (String? value) {
+                                      if (value == null || value.isEmpty) {
+                                        return appLocalizations.enterPassword;
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (value) => inputPassword = value!,
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextFormField(
+                                    initialValue: (userToEdit != null)
+                                        ? userToEdit.age.toString()
+                                        : '',
+                                    decoration: InputDecoration(
+                                      labelText: appLocalizations.age,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
                                     ),
-                                  ],
-                                ),
-                              ],
+                                    validator: (String? value) {
+                                      if (value == null || value.isEmpty) {
+                                        return appLocalizations.enterAge;
+                                      } else {
+                                        if (int.tryParse(value) == null) {
+                                          return appLocalizations.mustBeNumber;
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (value) {
+                                      inputAge = int.tryParse(value ?? '');
+                                    },
+                                  ),
+                                  const SizedBox(height: 15),
+                                  ExpansionTile(
+                                    title: Text(appLocalizations.gender),
+                                    subtitle: switch (selectedGender) {
+                                      Gender.male =>
+                                        Text(appLocalizations.male),
+                                      Gender.female =>
+                                        Text(appLocalizations.female),
+                                      Gender.other =>
+                                        Text(appLocalizations.other),
+                                    },
+                                    children: [
+                                      RadioListTile(
+                                        value: Gender.male,
+                                        groupValue: selectedGender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value as Gender;
+                                          });
+                                        },
+                                        title: Text(appLocalizations.male),
+                                      ),
+                                      RadioListTile(
+                                        value: Gender.female,
+                                        groupValue: selectedGender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value as Gender;
+                                          });
+                                        },
+                                        title: Text(appLocalizations.female),
+                                      ),
+                                      RadioListTile(
+                                        value: Gender.other,
+                                        groupValue: selectedGender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value as Gender;
+                                          });
+                                        },
+                                        title: Text(appLocalizations.other),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: Text(appLocalizations.cancel)),
-                      FilledButton(
-                          onPressed: () async {
-                            final isValid = formKey.currentState!.validate();
-
-                            if (isValid) {
-                              formKey.currentState!.save();
-
-                              if (user == null) {
-                                int userId = await repository.insertUser(
-                                  User(
-                                    name: inputName,
-                                    email: inputEmail,
-                                    password: inputPassword,
-                                    age: inputAge,
-                                    gender: selectedGender,
-                                  ),
-                                );
-
-                                await asyncPrefs.setInt('activeUserId', userId);
-                                if (context.mounted) {
-                                  context.go('/trees/$userId');
-                                }
-                              } else {
-                                await repository.updateUser(
-                                  User(
-                                    id: user.id,
-                                    name: inputName,
-                                    email: inputEmail,
-                                    password: inputPassword,
-                                    age: inputAge,
-                                    gender: selectedGender,
-                                  ),
-                                );
-                                globalFlagRefreshList = true;
-                                if (context.mounted) {
-                                  showSnackbar(
-                                      context, appLocalizations.userEdited);
-                                  context.pop();
-                                }
-                                if (refreshUser != null) refreshUser();
-                              }
-                            }
-                          },
-                          child: Text(appLocalizations.accept)),
-                    ],
-                  )
-                ],
-              ),
-            ));
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              context.pop();
+                            },
+                            child: Text(appLocalizations.cancel)),
+                        FilledButton(
+                            onPressed: checkForm,
+                            child: Text(appLocalizations.accept)),
+                      ],
+                    )
+                  ],
+                ),
+              )),
+        );
       });
 }

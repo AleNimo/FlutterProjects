@@ -98,6 +98,12 @@ class FakeRepository implements Repository {
   }
 
   @override
+  Future<User?> getUserByName(String name) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return _usersList.firstWhereOrNull((user) => user.name == name);
+  }
+
+  @override
   Future<int> insertUser(User user) async {
     await Future.delayed(const Duration(seconds: 1));
     int id;

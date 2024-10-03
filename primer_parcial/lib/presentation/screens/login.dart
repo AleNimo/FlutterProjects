@@ -25,13 +25,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  late Future<List<User>> usersRequest;
+
   @override
   void initState() {
     super.initState();
-    readSavedParameters();
+    usersRequest = asyncInit();
   }
 
-  void readSavedParameters() async {
+  Future<List<User>> asyncInit() async {
     final String? languageCode =
         await widget.asyncPrefs.getString('language_code');
     final int? colorInt = await widget.asyncPrefs.getInt('theme_color');
@@ -63,32 +65,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await widget.asyncPrefs.remove('activeUserId');
       }
     }
+    return widget.repository.getUsers();
   }
 
   @override
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(appLocalizations.login),
-      ),
-      body: FutureBuilder(
-        future: widget.repository.getUsers(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData) {
-            return LoginWidgets(
-              users: snapshot.data!,
-              repository: widget.repository,
-              asyncPrefs: widget.asyncPrefs,
-            );
-          } else {
-            return Center(child: Text(snapshot.error.toString()));
-          }
-        },
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(appLocalizations.login),
+        ),
+        body: FutureBuilder(
+          future: usersRequest,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasData) {
+              return LoginWidgets(
+                users: snapshot.data!,
+                repository: widget.repository,
+                asyncPrefs: widget.asyncPrefs,
+              );
+            } else {
+              return Center(child: Text(snapshot.error.toString()));
+            }
+          },
+        ),
       ),
     );
   }
@@ -211,8 +217,10 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                     Text(appLocalizations.notHaveAccount),
                     TextButton(
                         onPressed: () {
-                          userDialog(context, appLocalizations.register,
-                              widget.repository, null, null);
+                          userDialog(
+                            context: context,
+                            repository: widget.repository,
+                          );
                         },
                         child: Text(appLocalizations.register))
                   ],

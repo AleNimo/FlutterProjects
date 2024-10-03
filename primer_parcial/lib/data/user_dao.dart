@@ -12,6 +12,9 @@ abstract class UserDao {
   @Query('SELECT * FROM User WHERE id = :id')
   Future<User?> findUserById(int id);
 
+  @Query('SELECT * FROM User WHERE name = :name')
+  Future<User?> findUserByName(String name);
+
   @insert
   Future<int> insertUser(User user);
 
