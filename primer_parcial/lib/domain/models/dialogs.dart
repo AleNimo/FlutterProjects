@@ -249,179 +249,183 @@ void treeDialog(BuildContext context, String title, Repository repository,
       builder: (context) {
         final textStyle = Theme.of(context).textTheme;
         final appLocalizations = AppLocalizations.of(context)!;
-        return Dialog(
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-          child: Padding(
-            padding: const EdgeInsets.all(25.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: textStyle.headlineSmall),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: formKey,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            TextFormField(
-                              initialValue: (tree != null) ? tree.name : '',
-                              decoration: InputDecoration(
-                                labelText: appLocalizations.commonName,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+            child: Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: textStyle.headlineSmall),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              TextFormField(
+                                initialValue: (tree != null) ? tree.name : '',
+                                decoration: InputDecoration(
+                                  labelText: appLocalizations.commonName,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return appLocalizations.enterName;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) => name = value!,
                               ),
-                              validator: (String? value) {
-                                if (value == null || value.isEmpty) {
-                                  return appLocalizations.enterName;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) => name = value!,
-                            ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              initialValue:
-                                  (tree != null) ? tree.scientificName : '',
-                              decoration: InputDecoration(
-                                labelText: appLocalizations.scientificName,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                              const SizedBox(height: 15),
+                              TextFormField(
+                                initialValue:
+                                    (tree != null) ? tree.scientificName : '',
+                                decoration: InputDecoration(
+                                  labelText: appLocalizations.scientificName,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return appLocalizations.enterScientificName;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) => scientificName = value!,
                               ),
-                              validator: (String? value) {
-                                if (value == null || value.isEmpty) {
-                                  return appLocalizations.enterScientificName;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) => scientificName = value!,
-                            ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              initialValue: (tree != null) ? tree.family : '',
-                              decoration: InputDecoration(
-                                labelText: appLocalizations.family,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                              const SizedBox(height: 15),
+                              TextFormField(
+                                initialValue: (tree != null) ? tree.family : '',
+                                decoration: InputDecoration(
+                                  labelText: appLocalizations.family,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return appLocalizations.enterFamily;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) => family = value!,
                               ),
-                              validator: (String? value) {
-                                if (value == null || value.isEmpty) {
-                                  return appLocalizations.enterFamily;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) => family = value!,
-                            ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              initialValue: (tree != null)
-                                  ? tree.quantityBsAs.toString()
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: appLocalizations.quantityCABA,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                              const SizedBox(height: 15),
+                              TextFormField(
+                                initialValue: (tree != null)
+                                    ? tree.quantityBsAs.toString()
+                                    : '',
+                                decoration: InputDecoration(
+                                  labelText: appLocalizations.quantityCABA,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return appLocalizations.enterQuantity;
+                                  } else if (int.tryParse(value) == null) {
+                                    return appLocalizations.mustBeNumber;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  quantityBsAs = int.tryParse(value ?? '') ?? 0;
+                                },
                               ),
-                              validator: (String? value) {
-                                if (value == null || value.isEmpty) {
-                                  return appLocalizations.enterQuantity;
-                                } else if (int.tryParse(value) == null) {
-                                  return appLocalizations.mustBeNumber;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                quantityBsAs = int.tryParse(value ?? '') ?? 0;
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                TextButton.icon(
-                  label: Text(appLocalizations.addImages),
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  onPressed: () async {
-                    pickedImages = await imgPicker.pickMultiImage(limit: 10);
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        child: Text(appLocalizations.cancel)),
-                    FilledButton(
-                        onPressed: () async {
-                          final isValid = formKey.currentState!.validate();
+                  TextButton.icon(
+                    label: Text(appLocalizations.addImages),
+                    icon: const Icon(Icons.add_a_photo_outlined),
+                    onPressed: () async {
+                      pickedImages = await imgPicker.pickMultiImage(limit: 10);
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: Text(appLocalizations.cancel)),
+                      FilledButton(
+                          onPressed: () async {
+                            final isValid = formKey.currentState!.validate();
 
-                          if (isValid) {
-                            formKey.currentState!.save();
+                            if (isValid) {
+                              formKey.currentState!.save();
 
-                            if (tree == null) {
-                              treeId = await repository.insertTree(
-                                Tree(
-                                  name: name,
-                                  scientificName: scientificName,
-                                  family: family,
-                                  quantityBsAs: quantityBsAs,
-                                ),
-                              );
+                              if (tree == null) {
+                                treeId = await repository.insertTree(
+                                  Tree(
+                                    name: name,
+                                    scientificName: scientificName,
+                                    family: family,
+                                    quantityBsAs: quantityBsAs,
+                                  ),
+                                );
 
-                              if (context.mounted) {
-                                showSnackbar(
-                                    context, appLocalizations.treeAdded);
-                              }
-                            } else {
-                              treeId = tree.id!;
-                              await repository.updateTree(
-                                Tree(
-                                  id: tree.id,
-                                  name: name,
-                                  scientificName: scientificName,
-                                  family: family,
-                                  quantityBsAs: quantityBsAs,
-                                ),
-                              );
-                              globalFlagRefreshList = true;
-                              if (context.mounted) {
-                                showSnackbar(
-                                    context, appLocalizations.treeEdited);
-                              }
-                            }
-
-                            if (pickedImages != null) {
-                              if (pickedImages!.isNotEmpty) {
-                                final Directory imagesDir = Directory(
-                                    '${userDocsDirectory.path}/images/trees/$treeId');
-                                if (!imagesDir.existsSync()) {
-                                  imagesDir.createSync(recursive: true);
+                                if (context.mounted) {
+                                  showSnackbar(
+                                      context, appLocalizations.treeAdded);
                                 }
-                                for (final file in pickedImages!) {
-                                  File image = File(file.path);
-
-                                  image.copy('${imagesDir.path}/${file.name}');
+                              } else {
+                                treeId = tree.id!;
+                                await repository.updateTree(
+                                  Tree(
+                                    id: tree.id,
+                                    name: name,
+                                    scientificName: scientificName,
+                                    family: family,
+                                    quantityBsAs: quantityBsAs,
+                                  ),
+                                );
+                                globalFlagRefreshList = true;
+                                if (context.mounted) {
+                                  showSnackbar(
+                                      context, appLocalizations.treeEdited);
                                 }
                               }
-                            }
 
-                            refreshFunction();
-                            if (context.mounted) context.pop();
-                          }
-                        },
-                        child: Text(appLocalizations.accept)),
-                  ],
-                )
-              ],
+                              if (pickedImages != null) {
+                                if (pickedImages!.isNotEmpty) {
+                                  final Directory imagesDir = Directory(
+                                      '${userDocsDirectory.path}/images/trees/$treeId');
+                                  if (!imagesDir.existsSync()) {
+                                    imagesDir.createSync(recursive: true);
+                                  }
+                                  for (final file in pickedImages!) {
+                                    File image = File(file.path);
+
+                                    image
+                                        .copy('${imagesDir.path}/${file.name}');
+                                  }
+                                }
+                              }
+
+                              refreshFunction();
+                              if (context.mounted) context.pop();
+                            }
+                          },
+                          child: Text(appLocalizations.accept)),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         );

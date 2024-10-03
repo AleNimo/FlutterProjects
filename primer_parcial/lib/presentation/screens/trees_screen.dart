@@ -211,16 +211,24 @@ class _TreesView extends StatelessWidget {
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async => onRefresh(),
-            child: ListView.builder(
-              //ListViewBuilder sirve para listas dinámicas, ya tiene función de scroll, etc
-              itemCount: treeList.length,
-              itemBuilder: (context, index) {
-                //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item
-                return _TreeItem(
-                  tree: treeList[index],
-                  onRefresh: () async => onRefresh(),
-                );
-              },
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: GridView.builder(
+                //ListViewBuilder sirve para listas dinámicas, ya tiene función de scroll, etc
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15),
+                itemCount: treeList.length,
+                itemBuilder: (context, index) {
+                  //Vendría a ser una especie de forEach que recorre todos los elementos con index y retorna un widget para cada item
+                  return _TreeItem(
+                    tree: treeList[index],
+                    onRefresh: () async => onRefresh(),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -271,6 +279,7 @@ class _TreeItemState extends State<_TreeItem> {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme;
     return GestureDetector(
       //Widget que permite agregar gestos a widgets que no lo tienen (en este caso no era necesario)
       onTap: () async {
@@ -280,11 +289,25 @@ class _TreeItemState extends State<_TreeItem> {
           widget.onRefresh();
         }
       },
-      child: Card(
-        child: ListTile(
-          visualDensity: const VisualDensity(vertical: 4),
-          leading: SizedBox(
-            width: 120,
+      child: Card.filled(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        elevation: 5,
+        child: GridTile(
+          header: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+            child: Center(
+                child: Text(widget.tree.name, style: textStyle.headlineSmall)),
+          ),
+          footer: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text(
+              widget.tree.scientificName,
+              style: textStyle.titleSmall,
+            )),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: FutureBuilder(
@@ -299,7 +322,7 @@ class _TreeItemState extends State<_TreeItem> {
                       return Text(snapshot.error.toString());
                     } else if (snapshot.hasData) {
                       return Image.memory(
-                        fit: BoxFit.fitWidth,
+                        fit: BoxFit.cover,
                         snapshot.data!.readAsBytesSync(),
                         errorBuilder: (context, error, stackTrace) {
                           return const SizedBox(
@@ -321,9 +344,6 @@ class _TreeItemState extends State<_TreeItem> {
                   },
                 )),
           ),
-          title: Text(widget.tree.name),
-          subtitle: Text(widget.tree.scientificName),
-          trailing: const Icon(Icons.arrow_forward),
         ),
       ),
     );

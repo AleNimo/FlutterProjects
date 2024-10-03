@@ -124,7 +124,7 @@ class _UserProfileState extends State<UserProfile> {
                                       return Container(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary,
+                                            .primaryContainer,
                                         child: Center(
                                             child: Text(
                                           user.name[0],
